@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -26,6 +26,18 @@ const LANES = [
   { id: 2, key: 'D', name: 'Synth G4', color: '#39FF14', note: 'G4' },
   { id: 3, key: 'F', name: 'Vocal C5', color: '#FFD700', note: 'C5' },
 ];
+
+// Memoized NoteBlock component to prevent re-creating inline style objects for notes on every render pass
+const NoteBlock = React.memo(({ y, color }: { y: number; color: string }) => {
+  return (
+    <View
+      style={[
+        styles.noteBlock,
+        { top: `${y}%`, backgroundColor: color, shadowColor: color },
+      ]}
+    />
+  );
+});
 
 export const RhythmBattleScreen = () => {
   const { player, activeBoss, gainXpAndGems, restoreEnergyAndHp } = useGame();
@@ -59,28 +71,110 @@ export const RhythmBattleScreen = () => {
   const noteIdCounter = useRef(1);
   const gameLoopRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Keyboard controls listener for Desktop PC
+  // Refs to allow stable keyboard event listener without tearing down event listener on state changes
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+
+  const specialGaugeRef = useRef(specialGauge);
+  specialGaugeRef.current = specialGauge;
+
+  // Handle lane hit (Touch or Keyboard)
+  const handleLaneHit = useCallback((laneIndex: number) => {
+    if (!isPlayingRef.current) return;
+
+    audioSynth.playNote(LANES[laneIndex].note, 'sine', 0.2, 0.2);
+
+    let hitFound = false;
+    setNotes((prevNotes) => {
+      const updatedNotes: FallingNote[] = [];
+      for (const note of prevNotes) {
+        if (!hitFound && note.lane === laneIndex && note.y >= 65 && note.y <= 92 && !note.hit) {
+          hitFound = true;
+          const isPerfect = note.y >= 75 && note.y <= 88;
+          const points = isPerfect ? 200 : 100;
+          const heroDmg = player.stats.rhythm + (isPerfect ? 30 : 15);
+
+          audioSynth.playHitSound(isPerfect);
+          setScore((s) => s + points);
+          setCombo((c) => {
+            const nextC = c + 1;
+            setMaxCombo((m) => Math.max(m, nextC));
+            return nextC;
+          });
+          setSpecialGauge((g) => Math.min(100, g + 12));
+          setFeedbackText(isPerfect ? 'PERFECT!' : 'GREAT!');
+
+          // Damage boss
+          setBossHp((bHp) => {
+            const nextBHp = Math.max(0, bHp - heroDmg);
+            if (nextBHp <= 0) {
+              setIsPlaying(false);
+              gainXpAndGems(currentBoss.rewardXp, currentBoss.rewardGems);
+              setVictoryModalVisible(true);
+            }
+            return nextBHp;
+          });
+
+          // Note was hit, prune it immediately from active falling notes
+          continue;
+        }
+        updatedNotes.push(note);
+      }
+      return updatedNotes;
+    });
+
+    if (!hitFound) {
+      setFeedbackText('EARLY / LATE');
+    }
+  }, [player.stats.rhythm, currentBoss.rewardXp, currentBoss.rewardGems, gainXpAndGems]);
+
+  const triggerSpecialAbility = useCallback(() => {
+    if (specialGaugeRef.current < 100 || !isPlayingRef.current) return;
+
+    audioSynth.playAbilitySound();
+    setSpecialGauge(0);
+    setFeedbackText('BASS DROP OVERDRIVE!');
+    const specialDmg = player.stats.rhythm * 3 + player.stats.power * 2;
+
+    setBossHp((bHp) => {
+      const nextBHp = Math.max(0, bHp - specialDmg);
+      if (nextBHp <= 0) {
+        setIsPlaying(false);
+        gainXpAndGems(currentBoss.rewardXp, currentBoss.rewardGems);
+        setVictoryModalVisible(true);
+      }
+      return nextBHp;
+    });
+  }, [player.stats.rhythm, player.stats.power, currentBoss.rewardXp, currentBoss.rewardGems, gainXpAndGems]);
+
+  const handleLaneHitRef = useRef(handleLaneHit);
+  handleLaneHitRef.current = handleLaneHit;
+
+  const triggerSpecialAbilityRef = useRef(triggerSpecialAbility);
+  triggerSpecialAbilityRef.current = triggerSpecialAbility;
+
+  // Keyboard controls listener for Desktop PC - stable registration using refs
   useEffect(() => {
     if (Platform.OS !== 'web') return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isPlaying) return;
+      if (!isPlayingRef.current) return;
       const key = e.key.toLowerCase();
-      if (key === 'a') handleLaneHit(0);
-      if (key === 's') handleLaneHit(1);
-      if (key === 'd') handleLaneHit(2);
-      if (key === 'f') handleLaneHit(3);
-      if (e.code === 'Space' && specialGauge >= 100) triggerSpecialAbility();
+      if (key === 'a') handleLaneHitRef.current(0);
+      if (key === 's') handleLaneHitRef.current(1);
+      if (key === 'd') handleLaneHitRef.current(2);
+      if (key === 'f') handleLaneHitRef.current(3);
+      if (e.code === 'Space' && specialGaugeRef.current >= 100) triggerSpecialAbilityRef.current();
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, notes, specialGauge]);
+  }, []);
 
   useEffect(() => {
     setBossHp(currentBoss.hp);
     setPlayerHp(player.stats.hp);
-  }, [currentBoss]);
+  }, [currentBoss, player.stats.hp]);
 
   // Start / Stop Battle loop
   const startBattle = () => {
@@ -124,7 +218,7 @@ export const RhythmBattleScreen = () => {
           if (newY >= 95 && !note.hit) {
             // Missed note reached bottom!
             playerDamaged = true;
-          } else if (newY < 100) {
+          } else if (newY < 100 && !note.hit) {
             updated.push({ ...note, y: newY });
           }
         });
@@ -152,71 +246,16 @@ export const RhythmBattleScreen = () => {
     };
   }, [isPlaying]);
 
-  // Handle lane hit (Touch or Keyboard)
-  const handleLaneHit = (laneIndex: number) => {
-    if (!isPlaying) return;
-
-    audioSynth.playNote(LANES[laneIndex].note, 'sine', 0.2, 0.2);
-
-    let hitFound = false;
-    setNotes((prevNotes) => {
-      return prevNotes.map((note) => {
-        if (!hitFound && note.lane === laneIndex && note.y >= 65 && note.y <= 92 && !note.hit) {
-          hitFound = true;
-          const isPerfect = note.y >= 75 && note.y <= 88;
-          const points = isPerfect ? 200 : 100;
-          const heroDmg = player.stats.rhythm + (isPerfect ? 30 : 15);
-
-          audioSynth.playHitSound(isPerfect);
-          setScore((s) => s + points);
-          setCombo((c) => {
-            const nextC = c + 1;
-            setMaxCombo((m) => Math.max(m, nextC));
-            return nextC;
-          });
-          setSpecialGauge((g) => Math.min(100, g + 12));
-          setFeedbackText(isPerfect ? 'PERFECT!' : 'GREAT!');
-
-          // Damage boss
-          setBossHp((bHp) => {
-            const nextBHp = Math.max(0, bHp - heroDmg);
-            if (nextBHp <= 0) {
-              setIsPlaying(false);
-              gainXpAndGems(currentBoss.rewardXp, currentBoss.rewardGems);
-              setVictoryModalVisible(true);
-            }
-            return nextBHp;
-          });
-
-          return { ...note, hit: true };
-        }
-        return note;
-      });
-    });
-
-    if (!hitFound) {
-      setFeedbackText('EARLY / LATE');
-    }
-  };
-
-  const triggerSpecialAbility = () => {
-    if (specialGauge < 100 || !isPlaying) return;
-
-    audioSynth.playAbilitySound();
-    setSpecialGauge(0);
-    setFeedbackText('BASS DROP OVERDRIVE!');
-    const specialDmg = player.stats.rhythm * 3 + player.stats.power * 2;
-
-    setBossHp((bHp) => {
-      const nextBHp = Math.max(0, bHp - specialDmg);
-      if (nextBHp <= 0) {
-        setIsPlaying(false);
-        gainXpAndGems(currentBoss.rewardXp, currentBoss.rewardGems);
-        setVictoryModalVisible(true);
+  // Single-pass lane grouping to avoid 4x array filtering per render
+  const notesByLane = useMemo(() => {
+    const map: Record<number, FallingNote[]> = { 0: [], 1: [], 2: [], 3: [] };
+    notes.forEach((n) => {
+      if (!n.hit && map[n.lane]) {
+        map[n.lane].push(n);
       }
-      return nextBHp;
     });
-  };
+    return map;
+  }, [notes]);
 
   const bossHpPercent = Math.min(100, Math.floor((bossHp / currentBoss.maxHp) * 100));
   const playerHpPercent = Math.min(100, Math.floor((playerHp / player.stats.maxHp) * 100));
@@ -279,17 +318,9 @@ export const RhythmBattleScreen = () => {
           {LANES.map((lane) => (
             <View key={lane.id} style={styles.laneTrack}>
               <Text style={styles.laneHeader}>{lane.key}</Text>
-              {notes
-                .filter((n) => n.lane === lane.id && !n.hit)
-                .map((n) => (
-                  <View
-                    key={n.id}
-                    style={[
-                      styles.noteBlock,
-                      { top: `${n.y}%`, backgroundColor: lane.color, shadowColor: lane.color },
-                    ]}
-                  />
-                ))}
+              {notesByLane[lane.id]?.map((n) => (
+                <NoteBlock key={n.id} y={n.y} color={lane.color} />
+              ))}
             </View>
           ))}
         </View>
