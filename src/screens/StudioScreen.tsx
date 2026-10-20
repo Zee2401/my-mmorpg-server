@@ -92,6 +92,9 @@ export const StudioScreen = () => {
               <TouchableOpacity
                 key={pad.id}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`${pad.label} drum pad`}
+                accessibilityHint="Triggers drum sound effect"
                 style={[
                   styles.drumPad,
                   { borderColor: pad.color },
@@ -115,6 +118,9 @@ export const StudioScreen = () => {
               <TouchableOpacity
                 key={n.note}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`Note ${n.label}`}
+                accessibilityHint="Plays synthesizer note sound"
                 style={[
                   styles.synthKey,
                   { borderColor: n.color },
