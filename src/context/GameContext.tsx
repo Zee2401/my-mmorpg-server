@@ -298,13 +298,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const savedSettings = await AsyncStorage.getItem(STORAGE_KEY_SETTINGS);
 
       if (savedPlayer) {
-        setPlayer(JSON.parse(savedPlayer));
+        const parsedPlayer = JSON.parse(savedPlayer);
+        if (parsedPlayer && typeof parsedPlayer === 'object') {
+          setPlayer((prev) => ({ ...prev, ...parsedPlayer }));
+        }
       }
       if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
+        const parsedSettings = JSON.parse(savedSettings);
+        if (parsedSettings && typeof parsedSettings === 'object') {
+          setSettings((prev) => ({ ...prev, ...parsedSettings }));
+        }
       }
-    } catch (e) {
-      console.error('Failed to load saved game state', e);
+    } catch {
+      // Secure error logging: avoid leaking stack trace / internal details in logs
+      console.error('Failed to load saved game state');
     }
   };
 
@@ -312,8 +319,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await AsyncStorage.setItem(STORAGE_KEY_PLAYER, JSON.stringify(player));
       await AsyncStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
-    } catch (e) {
-      console.error('Failed to save game state', e);
+    } catch {
+      // Secure error logging: avoid leaking stack trace / internal details in logs
+      console.error('Failed to save game state');
     }
   };
 
@@ -351,6 +359,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const buyItem = (item: InventoryItem): boolean => {
+    // Validate item and price input to prevent negative pricing or NaN exploits
+    if (!item || typeof item.price !== 'number' || !Number.isFinite(item.price) || item.price < 0) {
+      return false;
+    }
+
     if (player.harmonyGems < item.price) return false;
 
     setPlayer((prev) => {
