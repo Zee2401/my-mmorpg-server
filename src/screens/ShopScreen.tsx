@@ -56,6 +56,9 @@ export const ShopScreen = () => {
         {/* Tab Switcher */}
         <View style={styles.tabContainer}>
           <TouchableOpacity
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === 'shop' }}
+            accessibilityLabel="Catalog Store tab"
             style={[styles.tabButton, activeTab === 'shop' && styles.activeTabButton]}
             onPress={() => setActiveTab('shop')}
           >
@@ -66,6 +69,9 @@ export const ShopScreen = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === 'inventory' }}
+            accessibilityLabel={`My Inventory tab, ${player.inventory.length} items`}
             style={[styles.tabButton, activeTab === 'inventory' && styles.activeTabButton]}
             onPress={() => setActiveTab('inventory')}
           >
@@ -114,6 +120,9 @@ export const ShopScreen = () => {
                     </View>
                   ) : (
                     <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={`Buy ${item.name} for ${item.price} Harmony Gems`}
+                      accessibilityHint="Purchases item with Harmony Gems"
                       style={styles.buyButton}
                       onPress={() => handleBuy(item)}
                     >
@@ -152,6 +161,8 @@ export const ShopScreen = () => {
                   {/* Action Button */}
                   {item.type === 'consumable' ? (
                     <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={`Use ${item.name}`}
                       style={styles.useButton}
                       onPress={() => handleUse(item)}
                     >
@@ -164,6 +175,8 @@ export const ShopScreen = () => {
                     </View>
                   ) : (
                     <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={`Equip ${item.name}`}
                       style={styles.equipButton}
                       onPress={() => handleEquip(item)}
                     >
