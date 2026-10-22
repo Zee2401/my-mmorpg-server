@@ -58,6 +58,10 @@ export const ShopScreen = () => {
           <TouchableOpacity
             style={[styles.tabButton, activeTab === 'shop' && styles.activeTabButton]}
             onPress={() => setActiveTab('shop')}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === 'shop' }}
+            accessibilityLabel="Catalog Store"
+            accessibilityHint="Switch to Catalog Store tab"
           >
             <Ionicons name="cart" size={18} color={activeTab === 'shop' ? '#00F0FF' : '#8888AA'} />
             <Text style={[styles.tabText, activeTab === 'shop' && styles.activeTabText]}>
@@ -68,6 +72,10 @@ export const ShopScreen = () => {
           <TouchableOpacity
             style={[styles.tabButton, activeTab === 'inventory' && styles.activeTabButton]}
             onPress={() => setActiveTab('inventory')}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === 'inventory' }}
+            accessibilityLabel={`My Inventory, ${player.inventory.length} items`}
+            accessibilityHint="Switch to My Inventory tab"
           >
             <Ionicons name="briefcase" size={18} color={activeTab === 'inventory' ? '#00F0FF' : '#8888AA'} />
             <Text style={[styles.tabText, activeTab === 'inventory' && styles.activeTabText]}>
@@ -116,6 +124,9 @@ export const ShopScreen = () => {
                     <TouchableOpacity
                       style={styles.buyButton}
                       onPress={() => handleBuy(item)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Buy ${item.name} for ${item.price} Harmony Gems`}
+                      accessibilityHint="Purchases item and adds it to your inventory"
                     >
                       <Ionicons name="diamond" size={14} color="#12121A" />
                       <Text style={styles.buyButtonText}>{item.price}</Text>
@@ -154,6 +165,9 @@ export const ShopScreen = () => {
                     <TouchableOpacity
                       style={styles.useButton}
                       onPress={() => handleUse(item)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Use ${item.name}`}
+                      accessibilityHint="Consumes item to restore HP and Energy"
                     >
                       <Text style={styles.useButtonText}>Use</Text>
                     </TouchableOpacity>
@@ -166,6 +180,9 @@ export const ShopScreen = () => {
                     <TouchableOpacity
                       style={styles.equipButton}
                       onPress={() => handleEquip(item)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Equip ${item.name}`}
+                      accessibilityHint="Equips item and applies stat bonuses"
                     >
                       <Text style={styles.equipButtonText}>Equip</Text>
                     </TouchableOpacity>
