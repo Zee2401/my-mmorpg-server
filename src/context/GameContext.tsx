@@ -298,10 +298,33 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const savedSettings = await AsyncStorage.getItem(STORAGE_KEY_SETTINGS);
 
       if (savedPlayer) {
-        setPlayer(JSON.parse(savedPlayer));
+        const parsed = JSON.parse(savedPlayer);
+        if (parsed && typeof parsed === 'object') {
+          // Validate structure & apply defaults to prevent state corruption
+          setPlayer({
+            ...INITIAL_PLAYER,
+            ...parsed,
+            stats: { ...INITIAL_PLAYER.stats, ...(parsed.stats || {}) },
+            equipped: { ...INITIAL_PLAYER.equipped, ...(parsed.equipped || {}) },
+            inventory: Array.isArray(parsed.inventory) ? parsed.inventory : INITIAL_PLAYER.inventory,
+            completedQuestIds: Array.isArray(parsed.completedQuestIds)
+              ? parsed.completedQuestIds
+              : INITIAL_PLAYER.completedQuestIds
+          });
+        }
       }
       if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
+        const parsed = JSON.parse(savedSettings);
+        if (parsed && typeof parsed === 'object') {
+          setSettings({
+            ...INITIAL_SETTINGS,
+            ...parsed,
+            keyboardControls: {
+              ...INITIAL_SETTINGS.keyboardControls,
+              ...(parsed.keyboardControls || {})
+            }
+          });
+        }
       }
     } catch (e) {
       console.error('Failed to load saved game state', e);
@@ -318,8 +341,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    const validXp = typeof xpAmount === 'number' && Number.isFinite(xpAmount) && xpAmount >= 0 ? xpAmount : 0;
+    const validGems = typeof gemsAmount === 'number' && Number.isFinite(gemsAmount) && gemsAmount >= 0 ? gemsAmount : 0;
+
     setPlayer((prev) => {
-      let newXp = prev.xp + xpAmount;
+      let newXp = prev.xp + validXp;
       let newLevel = prev.level;
       let newNextXp = prev.nextLevelXp;
       const newStats = { ...prev.stats };
@@ -344,13 +370,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         level: newLevel,
         xp: newXp,
         nextLevelXp: newNextXp,
-        harmonyGems: prev.harmonyGems + gemsAmount,
+        harmonyGems: prev.harmonyGems + validGems,
         stats: newStats
       };
     });
   };
 
   const buyItem = (item: InventoryItem): boolean => {
+    if (!item || typeof item.price !== 'number' || !Number.isFinite(item.price) || item.price < 0) {
+      return false;
+    }
     if (player.harmonyGems < item.price) return false;
 
     setPlayer((prev) => {
