@@ -1,0 +1,4 @@
+## 2025-05-18 - Insecure Deserialization & Unvalidated State Inputs in AsyncStorage Context
+**Vulnerability:** Saved local storage state (`player` and `settings`) from `AsyncStorage` was directly assigned via `JSON.parse` without verifying property existence or structural schemas. Additionally, state actions accepted numeric parameters like prices and XP without non-negative/finite type checks.
+**Learning:** Untrusted or corrupted JSON payloads in client storage can cause missing array/object runtime crashes (e.g. `undefined.includes` or `undefined.map`) or allow state exploits (e.g. negative prices or NaN currency values).
+**Prevention:** Always sanitize and merge deserialized persistent state against default schema models, and validate that numeric input parameters are finite, non-negative numbers before performing state calculations.
