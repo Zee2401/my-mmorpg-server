@@ -297,11 +297,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const savedPlayer = await AsyncStorage.getItem(STORAGE_KEY_PLAYER);
       const savedSettings = await AsyncStorage.getItem(STORAGE_KEY_SETTINGS);
 
+      // Secure handling of stored JSON to prevent crashes from corrupted or untrusted local state
       if (savedPlayer) {
-        setPlayer(JSON.parse(savedPlayer));
+        try {
+          const parsedPlayer = JSON.parse(savedPlayer);
+          if (parsedPlayer && typeof parsedPlayer === 'object') {
+            setPlayer((prev) => ({ ...prev, ...parsedPlayer }));
+          }
+        } catch (err) {
+          console.warn('Security Warning: Malformed player profile data in storage, using initial state', err);
+        }
       }
       if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
+        try {
+          const parsedSettings = JSON.parse(savedSettings);
+          if (parsedSettings && typeof parsedSettings === 'object') {
+            setSettings((prev) => ({ ...prev, ...parsedSettings }));
+          }
+        } catch (err) {
+          console.warn('Security Warning: Malformed settings data in storage, using initial state', err);
+        }
       }
     } catch (e) {
       console.error('Failed to load saved game state', e);
