@@ -278,6 +278,48 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
+const sanitizeNum = (val: unknown, fallback: number): number => {
+  return typeof val === 'number' && Number.isFinite(val) && val >= 0 ? val : fallback;
+};
+
+// Security Helper: Validate and sanitize untrusted deserialized state from storage
+const sanitizePlayerData = (raw: unknown): PlayerProfile => {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return INITIAL_PLAYER;
+  }
+
+  const p = raw as Partial<PlayerProfile>;
+  const stats = p.stats && typeof p.stats === 'object' ? (p.stats as Partial<PlayerProfile['stats']>) : {};
+  const equipped = p.equipped && typeof p.equipped === 'object' ? p.equipped : {};
+
+  return {
+    ...INITIAL_PLAYER,
+    ...p,
+    level: sanitizeNum(p.level, INITIAL_PLAYER.level),
+    xp: sanitizeNum(p.xp, INITIAL_PLAYER.xp),
+    nextLevelXp: sanitizeNum(p.nextLevelXp, INITIAL_PLAYER.nextLevelXp),
+    harmonyGems: sanitizeNum(p.harmonyGems, INITIAL_PLAYER.harmonyGems),
+    stats: {
+      ...INITIAL_PLAYER.stats,
+      ...stats,
+      hp: sanitizeNum(stats.hp, INITIAL_PLAYER.stats.hp),
+      maxHp: sanitizeNum(stats.maxHp, INITIAL_PLAYER.stats.maxHp),
+      energy: sanitizeNum(stats.energy, INITIAL_PLAYER.stats.energy),
+      maxEnergy: sanitizeNum(stats.maxEnergy, INITIAL_PLAYER.stats.maxEnergy),
+      rhythm: sanitizeNum(stats.rhythm, INITIAL_PLAYER.stats.rhythm),
+      pitch: sanitizeNum(stats.pitch, INITIAL_PLAYER.stats.pitch),
+      power: sanitizeNum(stats.power, INITIAL_PLAYER.stats.power),
+      harmony: sanitizeNum(stats.harmony, INITIAL_PLAYER.stats.harmony),
+    },
+    equipped: {
+      ...INITIAL_PLAYER.equipped,
+      ...equipped,
+    },
+    inventory: Array.isArray(p.inventory) ? p.inventory : INITIAL_PLAYER.inventory,
+    completedQuestIds: Array.isArray(p.completedQuestIds) ? p.completedQuestIds : INITIAL_PLAYER.completedQuestIds,
+  };
+};
+
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [player, setPlayer] = useState<PlayerProfile>(INITIAL_PLAYER);
   const [settings, setSettings] = useState<GameSettings>(INITIAL_SETTINGS);
@@ -300,10 +342,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Secure handling of stored JSON to prevent crashes from corrupted or untrusted local state
       if (savedPlayer) {
         try {
-          const parsedPlayer = JSON.parse(savedPlayer);
-          if (parsedPlayer && typeof parsedPlayer === 'object') {
-            setPlayer((prev) => ({ ...prev, ...parsedPlayer }));
-          }
+          setPlayer(sanitizePlayerData(JSON.parse(savedPlayer)));
         } catch (err) {
           console.warn('Security Warning: Malformed player profile data in storage, using initial state', err);
         }
@@ -366,6 +405,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const buyItem = (item: InventoryItem): boolean => {
+    // Security: Validate price is a valid, finite non-negative number to prevent gem manipulation
+    if (typeof item.price !== 'number' || !Number.isFinite(item.price) || item.price < 0) return false;
     if (player.harmonyGems < item.price) return false;
 
     setPlayer((prev) => {
