@@ -258,6 +258,14 @@ export const RhythmBattleScreen = () => {
           style={[styles.specialButton, specialGauge >= 100 ? styles.specialButtonReady : styles.specialButtonDisabled]}
           onPress={triggerSpecialAbility}
           disabled={specialGauge < 100}
+          accessibilityRole="button"
+          accessibilityLabel="Solo Shred special ability"
+          accessibilityHint={
+            specialGauge >= 100
+              ? 'Triggers heavy overdrive damage to sound boss'
+              : `Special gauge is at ${specialGauge} percent`
+          }
+          accessibilityState={{ disabled: specialGauge < 100 }}
         >
           <Ionicons name="flash" size={16} color="#12121A" />
           <Text style={styles.specialText}>
@@ -301,6 +309,9 @@ export const RhythmBattleScreen = () => {
           <TouchableOpacity
             key={lane.id}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Lane ${lane.key}, ${lane.name}`}
+            accessibilityHint={`Hits falling notes in ${lane.name} lane`}
             style={[styles.padButton, { borderColor: lane.color }]}
             onPress={() => handleLaneHit(lane.id)}
           >
@@ -312,7 +323,13 @@ export const RhythmBattleScreen = () => {
 
       {/* Play / Start Button if not playing */}
       {!isPlaying && (
-        <TouchableOpacity style={styles.startButton} onPress={startBattle}>
+        <TouchableOpacity
+          style={styles.startButton}
+          onPress={startBattle}
+          accessibilityRole="button"
+          accessibilityLabel="Start Rhythm Duel"
+          accessibilityHint="Begins the rhythm battle with falling notes"
+        >
           <Ionicons name="play" size={24} color="#12121A" />
           <Text style={styles.startButtonText}>START RHYTHM DUEL</Text>
         </TouchableOpacity>
