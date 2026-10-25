@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -68,8 +69,16 @@ export const BandScreen = () => {
               style={[styles.concertButton, concertActive && { backgroundColor: '#FF0055' }]}
               onPress={handleConcertRaid}
               disabled={concertActive}
+              accessibilityRole="button"
+              accessibilityLabel="Launch Band Concert Raid"
+              accessibilityHint="Performs a world concert raid to earn XP and Harmony Gems"
+              accessibilityState={{ disabled: concertActive, busy: concertActive }}
             >
-              <Ionicons name="sparkles" size={18} color="#FFFFFF" />
+              {concertActive ? (
+                <ActivityIndicator size="small" color="#FFFFFF" style={{ marginRight: 8 }} />
+              ) : (
+                <Ionicons name="sparkles" size={18} color="#FFFFFF" />
+              )}
               <Text style={styles.concertButtonText}>
                 {concertActive ? 'PERFORMING CONCERT...' : 'LAUNCH BAND CONCERT RAID'}
               </Text>
