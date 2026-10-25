@@ -1,0 +1,125 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1102 &-9000000000000000000
+AudioMixer:
+  serializedVersion: 5
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: AudioMixer
+  m_EditorClassIdentifier: 
+  m_OutputAudioMixerGroup: {fileID: 0}
+  m_UpdateMode: 0
+  m_ExposedParameters: []
+  m_Groups:
+  - serializedVersion: 1
+    m_Name: Master
+    m_Exposed: 0
+    m_ExposedName: 
+    m_AudioMixerGroup: {fileID: 0}
+    m_Volume: 0
+    m_Pan: 0
+    m_SpatialBlend: 0
+    m_ReverbZoneMix: 1
+    m_BypassEffects: 0
+    m_BypassListenerEffects: 0
+    m_BypassReverbZones: 0
+    m_Solo: 0
+    m_Mute: 0
+    m_AllowAutomation: 1
+    m_AudioChorusFilter: {fileID: 0}
+    m_AudioEchoFilter: {fileID: 0}
+    m_AudioFlangerFilter: {fileID: 0}
+    m_AudioHighPassFilter: {fileID: 0}
+    m_AudioLowPassFilter: {fileID: 0}
+    m_AudioDistortionFilter: {fileID: 0}
+    m_AudioReverbFilter: {fileID: 0}
+  - serializedVersion: 1
+    m_Name: Music
+    m_Exposed: 1
+    m_ExposedName: MusicVolume
+    m_AudioMixerGroup: {fileID: 0}
+    m_Volume: 0
+    m_Pan: 0
+    m_SpatialBlend: 0
+    m_ReverbZoneMix: 1
+    m_BypassEffects: 0
+    m_BypassListenerEffects: 0
+    m_BypassReverbZones: 0
+    m_Solo: 0
+    m_Mute: 0
+    m_AllowAutomation: 1
+    m_AudioChorusFilter: {fileID: 0}
+    m_AudioEchoFilter: {fileID: 0}
+    m_AudioFlangerFilter: {fileID: 0}
+    m_AudioHighPassFilter: {fileID: 0}
+    m_AudioLowPassFilter: {fileID: 0}
+    m_AudioDistortionFilter: {fileID: 0}
+    m_AudioReverbFilter: {fileID: 0}
+  - serializedVersion: 1
+    m_Name: SFX
+    m_Exposed: 1
+    m_ExposedName: SFXVolume
+    m_AudioMixerGroup: {fileID: 0}
+    m_Volume: 0
+    m_Pan: 0
+    m_SpatialBlend: 0
+    m_ReverbZoneMix: 1
+    m_BypassEffects: 0
+    m_BypassListenerEffects: 0
+    m_BypassReverbZones: 0
+    m_Solo: 0
+    m_Mute: 0
+    m_AllowAutomation: 1
+    m_AudioChorusFilter: {fileID: 0}
+    m_AudioEchoFilter: {fileID: 0}
+    m_AudioFlangerFilter: {fileID: 0}
+    m_AudioHighPassFilter: {fileID: 0}
+    m_AudioLowPassFilter: {fileID: 0}
+    m_AudioDistortionFilter: {fileID: 0}
+    m_AudioReverbFilter: {fileID: 0}
+  - serializedVersion: 1
+    m_Name: Voice
+    m_Exposed: 1
+    m_ExposedName: VoiceVolume
+    m_AudioMixerGroup: {fileID: 0}
+    m_Volume: 0
+    m_Pan: 0
+    m_SpatialBlend: 0
+    m_ReverbZoneMix: 1
+    m_BypassEffects: 0
+    m_BypassListenerEffects: 0
+    m_BypassReverbZones: 0
+    m_Solo: 0
+    m_Mute: 0
+    m_AllowAutomation: 1
+    m_AudioChorusFilter: {fileID: 0}
+    m_AudioEchoFilter: {fileID: 0}
+    m_AudioFlangerFilter: {fileID: 0}
+    m_AudioHighPassFilter: {fileID: 0}
+    m_AudioLowPassFilter: {fileID: 0}
+    m_AudioDistortionFilter: {fileID: 0}
+    m_AudioReverbFilter: {fileID: 0}
+  - serializedVersion: 1
+    m_Name: Ambient
+    m_Exposed: 1
+    m_ExposedName: AmbientVolume
+    m_AudioMixerGroup: {fileID: 0}
+    m_Volume: 0
+    m_Pan: 0
+    m_SpatialBlend: 0
+    m_ReverbZoneMix: 1
+    m_BypassEffects: 0
+    m_BypassListenerEffects: 0
+    m_BypassReverbZones: 0
+    m_Solo: 0
+    m_Mute: 0
+    m_AllowAutomation: 1
+    m_AudioChorusFilter: {fileID: 0}
+    m_AudioEchoFilter: {fileID: 0}
+    m_AudioFlangerFilter: {fileID: 0}
+    m_AudioHighPassFilter: {fileID: 0}
+    m_AudioLowPassFilter: {fileID: 0}
+    m_AudioDistortionFilter: {fileID: 0}
+    m_AudioReverbFilter: {fileID: 0}

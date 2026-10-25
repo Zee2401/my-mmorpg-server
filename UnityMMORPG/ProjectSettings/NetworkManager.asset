@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &-9000000000000000002
+GameObject:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: NetworkManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &-9000000000000000003
+Transform:
+  serializedVersion: 2
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: -9000000000000000002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1107 &-9000000000000000004
+NetworkManager:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Script: {fileID: 11500000, guid: 0000000000000000f000000000000000, type: 0}
+  m_GameObject: {fileID: -9000000000000000002}
+  m_RunInBackground: 0
+  m_SimulatorLatency: 0
+  m_PacketLatency: 0
+  m_DropThreshold: 0.1
+  m_MaxConnections: 4
+  m_MaxDelay: 0.1
+  m_MinUpdateRate: 10
+  m_SendRate: 15
+  m_StartPosition: {x: 0, y: 0, z: 0}
+  m_StartRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_NetworkAddress: localhost
+  m_NetworkPort: 7777
+  m_ServerBindAddress: Any
+  m_ServerBindToIP: 
+  m_UseNat: 1
+  m_UseWebSockets: 0
+  m_UseSimulator: 0
+  m_UseTransportPackage: 0
+  m_TransportClassName: 
+  m_MaxPacketSize: 1300
+  m_MaxSentMessageQueueSize: 100
+  m_ConnectionTimeout: 5
+  m_DisconnectTimeout: 5
+  m_PingTimeout: 5
+  m_ClientTimeout: 30
+  m_ServerTimeout: 30
+  m_PlayerPrefab: {fileID: 0}
+  m_AutoCreatePlayer: 1
+  m_PlayerSpawnMethod: 0
+  m_CustomNetworkManager: {fileID: 0}
+  m_CustomConfig: {fileID: 0}
+  m_Transport: {fileID: 0}
+  m_SpawnPrefabs: []
+  m_RegisteredSpawnablePrefabs: []
+  m_OnlineScene: {fileID: 0}
+  m_OfflineScene: {fileID: 0}
+  m_ConnectionConfig: {fileID: 0}
+  m_ChannelCount: 1
+  m_Channels: []
+  m_QosChannels: []

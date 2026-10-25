@@ -1,0 +1,503 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!136 &-9000000000000000005
+InputActionAsset:
+  serializedVersion: 2
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: InputManager
+  m_EditorClassIdentifier: 
+  m_ActionMaps:
+  - serializedVersion: 1
+    m_Name: Player
+    m_Id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+    m_Actions:
+    - serializedVersion: 1
+      m_Name: Move
+      m_Id: move-action-id-0001
+      m_ExpectedControlType: Vector2
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: true
+    - serializedVersion: 1
+      m_Name: Look
+      m_Id: look-action-id-0002
+      m_ExpectedControlType: Vector2
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: true
+    - serializedVersion: 1
+      m_Name: Jump
+      m_Id: jump-action-id-0003
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Attack
+      m_Id: attack-action-id-0004
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Run
+      m_Id: run-action-id-0005
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Interact
+      m_Id: interact-action-id-0006
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Inventory
+      m_Id: inventory-action-id-0007
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Map
+      m_Id: map-action-id-0008
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Menu
+      m_Id: menu-action-id-0009
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Ability1
+      m_Id: ability1-action-id-0010
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Ability2
+      m_Id: ability2-action-id-0011
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Ability3
+      m_Id: ability3-action-id-0012
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Ability4
+      m_Id: ability4-action-id-0013
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    m_Bindings:
+    - serializedVersion: 1
+      m_Name: WASD
+      m_Id: wasd-composite-id-0001
+      m_Path: 2DVector
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Move
+      m_IsComposite: true
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: left
+      m_Id: wasd-left-id-0001
+      m_Path: <Keyboard>/a
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Move
+      m_IsComposite: false
+      m_IsPartOfComposite: true
+    - serializedVersion: 1
+      m_Name: right
+      m_Id: wasd-right-id-0001
+      m_Path: <Keyboard>/d
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Move
+      m_IsComposite: false
+      m_IsPartOfComposite: true
+    - serializedVersion: 1
+      m_Name: forward
+      m_Id: wasd-forward-id-0001
+      m_Path: <Keyboard>/w
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Move
+      m_IsComposite: false
+      m_IsPartOfComposite: true
+    - serializedVersion: 1
+      m_Name: back
+      m_Id: wasd-back-id-0001
+      m_Path: <Keyboard>/s
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Move
+      m_IsComposite: false
+      m_IsPartOfComposite: true
+    - serializedVersion: 1
+      m_Name: Mouse Delta
+      m_Id: mouse-look-id-0001
+      m_Path: <Mouse>/delta
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Mouse
+      m_Action: Look
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: space-jump-id-0001
+      m_Path: <Keyboard>/space
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Jump
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: mouse-attack-id-0001
+      m_Path: <Mouse>/leftButton
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Mouse
+      m_Action: Attack
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: shift-run-id-0001
+      m_Path: <Keyboard>/leftShift
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Run
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: e-interact-id-0001
+      m_Path: <Keyboard>/e
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Interact
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: tab-inventory-id-0001
+      m_Path: <Keyboard>/tab
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Inventory
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: m-map-id-0001
+      m_Path: <Keyboard>/m
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Map
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: escape-menu-id-0001
+      m_Path: <Keyboard>/escape
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Menu
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: 1-ability-id-0001
+      m_Path: <Keyboard>/1
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Ability1
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: 2-ability-id-0001
+      m_Path: <Keyboard>/2
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Ability2
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: 3-ability-id-0001
+      m_Path: <Keyboard>/3
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Ability3
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: 4-ability-id-0001
+      m_Path: <Keyboard>/4
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Keyboard
+      m_Action: Ability4
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: Gamepad Left Stick
+      m_Id: gamepad-move-id-0001
+      m_Path: <Gamepad>/leftStick
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Move
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: Gamepad Right Stick
+      m_Id: gamepad-look-id-0001
+      m_Path: <Gamepad>/rightStick
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Look
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-jump-id-0001
+      m_Path: <Gamepad>/buttonSouth
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Jump
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-attack-id-0001
+      m_Path: <Gamepad>/rightTrigger
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Attack
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-run-id-0001
+      m_Path: <Gamepad>/leftShift
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Run
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-interact-id-0001
+      m_Path: <Gamepad>/buttonWest
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Interact
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-inventory-id-0001
+      m_Path: <Gamepad>/select
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Inventory
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-map-id-0001
+      m_Path: <Gamepad>/start
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Map
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-menu-id-0001
+      m_Path: <Gamepad>/options
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Menu
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-ability1-id-0001
+      m_Path: <Gamepad>/buttonNorth
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Ability1
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-ability2-id-0001
+      m_Path: <Gamepad>/buttonEast
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Ability2
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-ability3-id-0001
+      m_Path: <Gamepad>/buttonWest
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Ability3
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: gamepad-ability4-id-0001
+      m_Path: <Gamepad>/buttonSouth
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Ability4
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+  - serializedVersion: 1
+    m_Name: UI
+    m_Id: b2c3d4e5-f6a7-890b-cdef-1234567890ab
+    m_Actions:
+    - serializedVersion: 1
+      m_Name: Click
+      m_Id: ui-click-id-0001
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Navigate
+      m_Id: ui-navigate-id-0001
+      m_ExpectedControlType: Vector2
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: true
+    - serializedVersion: 1
+      m_Name: Submit
+      m_Id: ui-submit-id-0001
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Cancel
+      m_Id: ui-cancel-id-0001
+      m_ExpectedControlType: Button
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: false
+    - serializedVersion: 1
+      m_Name: Point
+      m_Id: ui-point-id-0001
+      m_ExpectedControlType: Vector2
+      m_Processors: 
+      m_Interactions: 
+      m_InitialStateCheck: true
+    m_Bindings:
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: ui-click-mouse-id-0001
+      m_Path: <Mouse>/leftButton
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Mouse
+      m_Action: Click
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: ui-click-touch-id-0001
+      m_Path: <Touchscreen>/primaryTouch/tap
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Touch
+      m_Action: Click
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+    - serializedVersion: 1
+      m_Name: 
+      m_Id: ui-click-gamepad-id-0001
+      m_Path: <Gamepad>/buttonSouth
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: Gamepad
+      m_Action: Click
+      m_IsComposite: false
+      m_IsPartOfComposite: false
+  m_ControlSchemes:
+  - serializedVersion: 1
+    m_Name: KeyboardMouse
+    m_BindingGroup: KeyboardMouse
+    m_Devices:
+    - m_DevicePath: <Keyboard>
+      m_IsOptional: false
+      m_IsOR: false
+    - m_DevicePath: <Mouse>
+      m_IsOptional: false
+      m_IsOR: false
+  - serializedVersion: 1
+    m_Name: Gamepad
+    m_BindingGroup: Gamepad
+    m_Devices:
+    - m_DevicePath: <Gamepad>
+      m_IsOptional: false
+      m_IsOR: false
+  - serializedVersion: 1
+    m_Name: Touch
+    m_BindingGroup: Touch
+    m_Devices:
+    - m_DevicePath: <Touchscreen>
+      m_IsOptional: false
+      m_IsOR: false
