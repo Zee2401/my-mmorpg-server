@@ -1,0 +1,171 @@
+{
+    "FileVersion": 3,
+    "EngineVersion": "5.3",
+    "Category": "",
+    "Description": "Music MMORPG - Cross-platform multiplayer online game for PC and iOS. A feature-packed Musical MMORPG with rhythm battles, sound synthesis, guilds, and epic boss fights.",
+    "Modules": [
+        {
+            "Name": "MusicMMORPG",
+            "Type": "Runtime",
+            "LoadingPhase": "Default",
+            "AdditionalNonAssetDirectoriesToWatch": [
+                "Source/MusicMMORPG/Public",
+                "Source/MusicMMORPG/Private"
+            ],
+            "AdditionalAssetDirectoriesToWatch": [
+                "Content/Blueprints",
+                "Content/Materials",
+                "Content/Models",
+                "Content/Textures",
+                "Content/Sounds",
+                "Content/Maps",
+                "Content/Animations",
+                "Content/Particles",
+                "Content/Widgets",
+                "Content/DataAssets"
+            ],
+            "PCHUsage": "UseExplicitOrSharedPCHs",
+            "bUseUnity": true,
+            "bUsePCHFiles": true,
+            "bUseSharedPCHs": true,
+            "bForceUnityBuild": false
+        }
+    ],
+    "TargetPlatforms": [
+        "Win64",
+        "Win32",
+        "Mac",
+        "Linux",
+        "IOS",
+        "Android"
+    ],
+    "Plugins": [
+        {
+            "Name": "OnlineSubsystem",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemNull",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemSteam",
+            "Enabled": true,
+            "Optional": true
+        },
+        {
+            "Name": "OnlineSubsystemIOS",
+            "Enabled": true,
+            "Optional": true
+        },
+        {
+            "Name": "OnlineSubsystemGooglePlay",
+            "Enabled": true,
+            "Optional": true
+        },
+        {
+            "Name": "VARest",
+            "Enabled": false,
+            "Optional": true
+        },
+        {
+            "Name": "AdvancedSessions",
+            "Enabled": true
+        },
+        {
+            "Name": "Voice",
+            "Enabled": true
+        },
+        {
+            "Name": "GameplayAbilities",
+            "Enabled": true
+        },
+        {
+            "Name": "GameplayTags",
+            "Enabled": true
+        },
+        {
+            "Name": "GameFeatures",
+            "Enabled": true
+        },
+        {
+            "Name": "ModularGameplay",
+            "Enabled": true
+        },
+        {
+            "Name": "ReplicationGraph",
+            "Enabled": true
+        },
+        {
+            "Name": "AIModule",
+            "Enabled": true
+        }
+    ],
+    "EngineAssociation": "5.3",
+    "Id": "MusicMMORPG",
+    "ProjectId": "{E3B0C442-98FC-1C14-9AFB-0C533E52A7C1}",
+    "GeneratedAssociationFiles": [
+        ".project"
+    ],
+    "CachedPlugins": [
+        {
+            "Name": "OnlineSubsystem",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemNull",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemSteam",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemIOS",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemGooglePlay",
+            "Enabled": true
+        }
+    ],
+    "Config": {
+        "Engine": {
+            "bEnableMultiplayer": true,
+            "bEnableNetworking": true,
+            "bEnableOnline": true,
+            "bEnableVoiceChat": true,
+            "MaxClientCount": 100,
+            "MaxInternetClientCount": 100,
+            "MaxLanServerClientCount": 32
+        },
+        "Game": {
+            "DefaultPlayerName": "MusicMMORPG_Player",
+            "MaxPlayers": 100,
+            "bStartInVR": false,
+            "bAllowVR": false
+        },
+        "Input": {
+            "DefaultInputComponentClass": "/Script/MusicMMORPG.MMORPGInputComponent"
+        },
+        "Networking": {
+            "bEnableMultiplayer": true,
+            "bEnableNetworking": true,
+            "bEnableOnline": true,
+            "bEnableVoiceChat": true,
+            "MaxClientCount": 100,
+            "MaxInternetClientCount": 100,
+            "MaxLanServerClientCount": 32,
+            "bUseCompression": true,
+            "bUseEncryption": false,
+            "bVerifyPeer": false,
+            "bEnableReplicationGraph": true
+        },
+        "Online": {
+            "bEnableOnline": true,
+            "bEnableMultiplayer": true,
+            "bEnableNetworking": true,
+            "bEnableVoiceChat": true
+        }
+    }
+}

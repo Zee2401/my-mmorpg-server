@@ -1,0 +1,68 @@
+{
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionString": "1.0.0",
+    "FriendlyName": "Music MMORPG Plugin",
+    "Description": "Music MMORPG game plugin for Unreal Engine. Provides multiplayer online gameplay with rhythm combat, sound synthesis, guilds, and boss battles.",
+    "Category": "Game",
+    "CreatedBy": "Music MMORPG Team",
+    "CreatedByURL": "https://github.com/Zee2401/my-mmorpg-server",
+    "DocsURL": "https://github.com/Zee2401/my-mmorpg-server/blob/main/README.md",
+    "SupportURL": "https://github.com/Zee2401/my-mmorpg-server/issues",
+    "MarketplaceURL": "",
+    "EngineVersion": "5.3",
+    "PreviewImagePath": "Resources/Icon128.png",
+    "LogoImagePath": "Resources/Icon128.png",
+    "Modules": [
+        {
+            "Name": "MusicMMORPG",
+            "Type": "Runtime",
+            "LoadingPhase": "Default",
+            "AdditionalBinaries": [],
+            "AdditionalNonAssetDirectoriesToWatch": [
+                "Source/MusicMMORPG/Public",
+                "Source/MusicMMORPG/Private"
+            ],
+            "AdditionalAssetDirectoriesToWatch": [
+                "Content/Blueprints",
+                "Content/Materials",
+                "Content/Models",
+                "Content/Textures",
+                "Content/Sounds",
+                "Content/Maps",
+                "Content/Animations",
+                "Content/Particles",
+                "Content/Widgets",
+                "Content/DataAssets"
+            ]
+        }
+    ],
+    "Plugins": [
+        {
+            "Name": "OnlineSubsystem",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemNull",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemSteam",
+            "Enabled": true,
+            "Optional": true
+        },
+        {
+            "Name": "OnlineSubsystemIOS",
+            "Enabled": true,
+            "Optional": true
+        },
+        {
+            "Name": "AdvancedSessions",
+            "Enabled": true
+        },
+        {
+            "Name": "Voice",
+            "Enabled": true
+        }
+    ]
+}
