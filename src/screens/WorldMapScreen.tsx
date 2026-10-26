@@ -34,6 +34,17 @@ export const WorldMapScreen = () => {
     navigation.navigate('Battle');
   };
 
+  const handlePerformQuest = (quest: Quest) => {
+    if (player.level < quest.requiredLevel) {
+      Alert.alert(
+        'Quest Locked',
+        `You need Level ${quest.requiredLevel} to perform "${quest.title}". You are currently Level ${player.level}.`
+      );
+      return;
+    }
+    completeQuest(quest.id);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -132,10 +143,10 @@ export const WorldMapScreen = () => {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    style={styles.claimButton}
-                    onPress={() => completeQuest(quest.id)}
+                    style={[styles.claimButton, player.level < quest.requiredLevel && styles.disabledClaimButton]}
+                    onPress={() => handlePerformQuest(quest)}
                   >
-                    <Text style={styles.claimButtonText}>Perform</Text>
+                    <Text style={[styles.claimButtonText, player.level < quest.requiredLevel && styles.disabledClaimText]}>Perform</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -215,5 +226,7 @@ const styles = StyleSheet.create({
   completedBadge: { flexDirection: 'row', alignItems: 'center', marginLeft: 8 },
   completedText: { color: '#39FF14', fontSize: 11, fontWeight: '600', marginLeft: 4 },
   claimButton: { backgroundColor: '#00F0FF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, marginLeft: 8 },
+  disabledClaimButton: { backgroundColor: '#333344' },
   claimButtonText: { color: '#12121A', fontWeight: 'bold', fontSize: 11 },
+  disabledClaimText: { color: '#8888AA' },
 });
