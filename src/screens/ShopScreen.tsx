@@ -58,6 +58,9 @@ export const ShopScreen = () => {
           <TouchableOpacity
             style={[styles.tabButton, activeTab === 'shop' && styles.activeTabButton]}
             onPress={() => setActiveTab('shop')}
+            accessibilityRole="tab"
+            accessibilityLabel="Catalog Store tab"
+            accessibilityState={{ selected: activeTab === 'shop' }}
           >
             <Ionicons name="cart" size={18} color={activeTab === 'shop' ? '#00F0FF' : '#8888AA'} />
             <Text style={[styles.tabText, activeTab === 'shop' && styles.activeTabText]}>
@@ -68,6 +71,9 @@ export const ShopScreen = () => {
           <TouchableOpacity
             style={[styles.tabButton, activeTab === 'inventory' && styles.activeTabButton]}
             onPress={() => setActiveTab('inventory')}
+            accessibilityRole="tab"
+            accessibilityLabel={`My Inventory tab, ${player.inventory.length} items`}
+            accessibilityState={{ selected: activeTab === 'inventory' }}
           >
             <Ionicons name="briefcase" size={18} color={activeTab === 'inventory' ? '#00F0FF' : '#8888AA'} />
             <Text style={[styles.tabText, activeTab === 'inventory' && styles.activeTabText]}>
@@ -116,6 +122,9 @@ export const ShopScreen = () => {
                     <TouchableOpacity
                       style={styles.buyButton}
                       onPress={() => handleBuy(item)}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Buy ${item.name} for ${item.price} Harmony Gems`}
+                      accessibilityHint={`Purchases ${item.name}`}
                     >
                       <Ionicons name="diamond" size={14} color="#12121A" />
                       <Text style={styles.buyButtonText}>{item.price}</Text>
@@ -128,51 +137,76 @@ export const ShopScreen = () => {
         ) : (
           /* Inventory Tab */
           <View style={styles.itemsList}>
-            {player.inventory.map((item, idx) => {
-              const isEquipped = item.isEquipped;
+            {player.inventory.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Ionicons name="briefcase-outline" size={44} color="#8888AA" />
+                <Text style={styles.emptyTitle}>Your Inventory is Empty</Text>
+                <Text style={styles.emptySubtitle}>
+                  Visit the Catalog Store to acquire epic concert gear and items.
+                </Text>
+                <TouchableOpacity
+                  style={styles.emptyButton}
+                  onPress={() => setActiveTab('shop')}
+                  accessibilityRole="button"
+                  accessibilityLabel="Browse Catalog Store"
+                  accessibilityHint="Switches tab to the Catalog Store"
+                >
+                  <Text style={styles.emptyButtonText}>Browse Catalog Store</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              player.inventory.map((item, idx) => {
+                const isEquipped = item.isEquipped;
 
-              return (
-                <View key={`${item.id}_${idx}`} style={styles.itemCard}>
-                  <View style={styles.itemIconContainer}>
-                    <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={30} color="#00F0FF" />
-                  </View>
+                return (
+                  <View key={`${item.id}_${idx}`} style={styles.itemCard}>
+                    <View style={styles.itemIconContainer}>
+                      <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={30} color="#00F0FF" />
+                    </View>
 
-                  <View style={{ marginLeft: 12, flex: 1 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={styles.itemName}>{item.name}</Text>
-                      <View style={[styles.rarityBadge, { borderColor: getRarityColor(item.rarity) }]}>
-                        <Text style={[styles.rarityText, { color: getRarityColor(item.rarity) }]}>
-                          {item.rarity}
-                        </Text>
+                    <View style={{ marginLeft: 12, flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={styles.itemName}>{item.name}</Text>
+                        <View style={[styles.rarityBadge, { borderColor: getRarityColor(item.rarity) }]}>
+                          <Text style={[styles.rarityText, { color: getRarityColor(item.rarity) }]}>
+                            {item.rarity}
+                          </Text>
+                        </View>
                       </View>
+                      <Text style={styles.itemDesc}>{item.description}</Text>
                     </View>
-                    <Text style={styles.itemDesc}>{item.description}</Text>
-                  </View>
 
-                  {/* Action Button */}
-                  {item.type === 'consumable' ? (
-                    <TouchableOpacity
-                      style={styles.useButton}
-                      onPress={() => handleUse(item)}
-                    >
-                      <Text style={styles.useButtonText}>Use</Text>
-                    </TouchableOpacity>
-                  ) : isEquipped ? (
-                    <View style={styles.equippedBadge}>
-                      <Ionicons name="checkmark-circle" size={16} color="#39FF14" />
-                      <Text style={styles.equippedText}>Equipped</Text>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={styles.equipButton}
-                      onPress={() => handleEquip(item)}
-                    >
-                      <Text style={styles.equipButtonText}>Equip</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              );
-            })}
+                    {/* Action Button */}
+                    {item.type === 'consumable' ? (
+                      <TouchableOpacity
+                        style={styles.useButton}
+                        onPress={() => handleUse(item)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Use ${item.name}`}
+                        accessibilityHint="Restores HP and Energy"
+                      >
+                        <Text style={styles.useButtonText}>Use</Text>
+                      </TouchableOpacity>
+                    ) : isEquipped ? (
+                      <View style={styles.equippedBadge}>
+                        <Ionicons name="checkmark-circle" size={16} color="#39FF14" />
+                        <Text style={styles.equippedText}>Equipped</Text>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.equipButton}
+                        onPress={() => handleEquip(item)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Equip ${item.name}`}
+                        accessibilityHint={`Equips ${item.name} to your hero`}
+                      >
+                        <Text style={styles.equipButtonText}>Equip</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                );
+              })
+            )}
           </View>
         )}
       </ScrollView>
@@ -273,4 +307,17 @@ const styles = StyleSheet.create({
   equippedText: { color: '#39FF14', fontWeight: 'bold', fontSize: 11, marginLeft: 4 },
   useButton: { backgroundColor: '#39FF14', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
   useButtonText: { color: '#12121A', fontWeight: 'bold', fontSize: 12 },
+  emptyContainer: {
+    backgroundColor: '#1A1A28',
+    borderRadius: 14,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#2A2A3C',
+    marginVertical: 12,
+  },
+  emptyTitle: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16, marginTop: 12 },
+  emptySubtitle: { color: '#8888AA', fontSize: 12, textAlign: 'center', marginTop: 4, marginBottom: 16 },
+  emptyButton: { backgroundColor: '#00F0FF', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 },
+  emptyButtonText: { color: '#12121A', fontWeight: 'bold', fontSize: 13 },
 });
