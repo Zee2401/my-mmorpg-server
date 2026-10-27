@@ -470,17 +470,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const completeQuest = (questId: string) => {
     if (player.completedQuestIds.includes(questId)) return;
 
-    let rewardXp = 0;
-    let rewardGems = 0;
+    let targetQuest: Quest | null = null;
 
     regions.forEach((reg) => {
       reg.quests.forEach((q) => {
         if (q.id === questId) {
-          rewardXp = q.rewardXp;
-          rewardGems = q.rewardGems;
+          targetQuest = q;
         }
       });
     });
+
+    if (!targetQuest) return;
+
+    // Security Check: Enforce level requirement authorization before awarding rewards
+    if (player.level < (targetQuest as Quest).requiredLevel) {
+      console.warn(`Security Warning: Player level ${player.level} is below required level ${(targetQuest as Quest).requiredLevel} for quest ${questId}`);
+      return;
+    }
+
+    const rewardXp = (targetQuest as Quest).rewardXp;
+    const rewardGems = (targetQuest as Quest).rewardGems;
 
     setPlayer((prev) => ({
       ...prev,
