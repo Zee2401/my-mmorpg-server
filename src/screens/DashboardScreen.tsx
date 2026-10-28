@@ -28,6 +28,7 @@ export const DashboardScreen = () => {
   const xpPercent = Math.min(100, Math.floor((player.xp / player.nextLevelXp) * 100));
   const hpPercent = Math.min(100, Math.floor((player.stats.hp / player.stats.maxHp) * 100));
   const energyPercent = Math.min(100, Math.floor((player.stats.energy / player.stats.maxEnergy) * 100));
+  const isFull = player.stats.hp >= player.stats.maxHp && player.stats.energy >= player.stats.maxEnergy;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -38,7 +39,7 @@ export const DashboardScreen = () => {
             <Text style={styles.gameTitle}>MUSIC MORPG</Text>
             <Text style={styles.subTitle}>Cross-Platform MMORPG Realm</Text>
           </View>
-          <View style={styles.gemBadge}>
+          <View style={styles.gemBadge} accessibilityLabel={`${player.harmonyGems} Harmony Gems`}>
             <Ionicons name="diamond" size={18} color="#FFD700" />
             <Text style={styles.gemText}>{player.harmonyGems}</Text>
           </View>
@@ -55,6 +56,9 @@ export const DashboardScreen = () => {
               <TouchableOpacity
                 style={styles.classBadge}
                 onPress={() => setClassModalVisible(true)}
+                accessibilityRole="button"
+                accessibilityLabel={`Class: ${player.characterClass}, Level ${player.level}`}
+                accessibilityHint="Tap to change class specialization"
               >
                 <Text style={styles.classText}>Level {player.level} • {player.characterClass}</Text>
                 <Ionicons name="chevron-down" size={14} color="#00F0FF" />
@@ -68,7 +72,12 @@ export const DashboardScreen = () => {
               <Text style={styles.progressLabel}>XP Progress</Text>
               <Text style={styles.progressValue}>{player.xp} / {player.nextLevelXp} ({xpPercent}%)</Text>
             </View>
-            <View style={styles.progressBarBackground}>
+            <View
+              style={styles.progressBarBackground}
+              accessibilityRole="progressbar"
+              accessibilityLabel="XP Progress"
+              accessibilityValue={{ min: 0, max: player.nextLevelXp, now: player.xp }}
+            >
               <View style={[styles.progressBarFill, { width: `${xpPercent}%`, backgroundColor: '#00F0FF' }]} />
             </View>
           </View>
@@ -80,7 +89,12 @@ export const DashboardScreen = () => {
                 <Text style={styles.progressLabel}>HP</Text>
                 <Text style={styles.progressValue}>{player.stats.hp}/{player.stats.maxHp}</Text>
               </View>
-              <View style={styles.progressBarBackground}>
+              <View
+                style={styles.progressBarBackground}
+                accessibilityRole="progressbar"
+                accessibilityLabel="Health Points"
+                accessibilityValue={{ min: 0, max: player.stats.maxHp, now: player.stats.hp }}
+              >
                 <View style={[styles.progressBarFill, { width: `${hpPercent}%`, backgroundColor: '#FF0055' }]} />
               </View>
             </View>
@@ -90,16 +104,29 @@ export const DashboardScreen = () => {
                 <Text style={styles.progressLabel}>Energy</Text>
                 <Text style={styles.progressValue}>{player.stats.energy}/{player.stats.maxEnergy}</Text>
               </View>
-              <View style={styles.progressBarBackground}>
+              <View
+                style={styles.progressBarBackground}
+                accessibilityRole="progressbar"
+                accessibilityLabel="Energy Points"
+                accessibilityValue={{ min: 0, max: player.stats.maxEnergy, now: player.stats.energy }}
+              >
                 <View style={[styles.progressBarFill, { width: `${energyPercent}%`, backgroundColor: '#39FF14' }]} />
               </View>
             </View>
           </View>
 
           {/* Energy Restore Action */}
-          <TouchableOpacity style={styles.restButton} onPress={restoreEnergyAndHp}>
+          <TouchableOpacity
+            style={[styles.restButton, isFull && styles.restButtonDisabled]}
+            onPress={restoreEnergyAndHp}
+            disabled={isFull}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: isFull }}
+            accessibilityLabel={isFull ? 'Energy and HP fully restored' : 'Rest and recharge energy'}
+            accessibilityHint={isFull ? 'Health and energy are already at maximum' : 'Restores health and energy to maximum'}
+          >
             <Ionicons name="flash-outline" size={18} color="#12121A" />
-            <Text style={styles.restButtonText}>Rest & Recharge Energy</Text>
+            <Text style={styles.restButtonText}>{isFull ? 'Energy & HP Full' : 'Rest & Recharge Energy'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -162,26 +189,38 @@ export const DashboardScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Choose Class Specialization</Text>
-            {CLASSES.map((c) => (
-              <TouchableOpacity
-                key={c.name}
-                style={[
-                  styles.classOption,
-                  player.characterClass === c.name && styles.activeClassOption,
-                ]}
-                onPress={() => {
-                  changeClass(c.name);
-                  setClassModalVisible(false);
-                }}
-              >
-                <Ionicons name={c.icon} size={24} color="#00F0FF" />
-                <View style={{ marginLeft: 12, flex: 1 }}>
-                  <Text style={styles.classNameText}>{c.name}</Text>
-                  <Text style={styles.classDescText}>{c.desc}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity style={styles.closeButton} onPress={() => setClassModalVisible(false)}>
+            {CLASSES.map((c) => {
+              const isSelected = player.characterClass === c.name;
+              return (
+                <TouchableOpacity
+                  key={c.name}
+                  style={[
+                    styles.classOption,
+                    isSelected && styles.activeClassOption,
+                  ]}
+                  onPress={() => {
+                    changeClass(c.name);
+                    setClassModalVisible(false);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  accessibilityLabel={`Select class ${c.name}`}
+                  accessibilityHint={c.desc}
+                >
+                  <Ionicons name={c.icon} size={24} color="#00F0FF" />
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <Text style={styles.classNameText}>{c.name}</Text>
+                    <Text style={styles.classDescText}>{c.desc}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setClassModalVisible(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Close class selection modal"
+            >
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
@@ -265,6 +304,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     marginTop: 8,
+  },
+  restButtonDisabled: {
+    opacity: 0.5,
   },
   restButtonText: { color: '#12121A', fontWeight: 'bold', marginLeft: 6 },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 12, marginTop: 8 },
