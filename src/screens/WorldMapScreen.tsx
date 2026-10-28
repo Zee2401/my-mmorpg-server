@@ -14,6 +14,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useGame } from '../context/GameContext';
 import { Region, Quest, Boss } from '../types/game';
 import { RootTabParamList } from '../navigation/AppNavigator';
+import { audioSynth } from '../utils/audioSynth';
 
 type NavigationProp = BottomTabNavigationProp<RootTabParamList, 'Explore'>;
 
@@ -21,6 +22,11 @@ export const WorldMapScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { player, regions, setActiveBoss, completeQuest } = useGame();
   const [selectedRegion, setSelectedRegion] = useState<Region>(regions[0]);
+
+  const handlePerformQuest = (questId: string) => {
+    completeQuest(questId);
+    audioSynth.playHitSound(true);
+  };
 
   const handleStartBossDuel = (boss: Boss) => {
     if (player.level < selectedRegion.minLevel) {
@@ -58,6 +64,10 @@ export const WorldMapScreen = () => {
                   isLocked && styles.lockedRegionCard,
                 ]}
                 onPress={() => setSelectedRegion(reg)}
+                accessibilityRole="tab"
+                accessibilityLabel={`${reg.name}${isLocked ? `, locked, requires level ${reg.minLevel}` : ''}`}
+                accessibilityState={{ selected: isSelected, disabled: isLocked }}
+                accessibilityHint="Switches active region overview"
               >
                 <Ionicons
                   name={reg.icon as keyof typeof Ionicons.glyphMap}
@@ -103,6 +113,9 @@ export const WorldMapScreen = () => {
             <TouchableOpacity
               style={styles.duelButton}
               onPress={() => handleStartBossDuel(selectedRegion.boss)}
+              accessibilityRole="button"
+              accessibilityLabel={`Duel boss ${selectedRegion.boss.name} in rhythm arena`}
+              accessibilityHint="Opens rhythm duel screen for this boss"
             >
               <Ionicons name="flame" size={18} color="#FFFFFF" />
               <Text style={styles.duelButtonText}>DUEL BOSS IN RHYTHM ARENA</Text>
@@ -133,7 +146,10 @@ export const WorldMapScreen = () => {
                 ) : (
                   <TouchableOpacity
                     style={styles.claimButton}
-                    onPress={() => completeQuest(quest.id)}
+                    onPress={() => handlePerformQuest(quest.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Perform quest ${quest.title}`}
+                    accessibilityHint={`Earns ${quest.rewardXp} XP and ${quest.rewardGems} Harmony Gems`}
                   >
                     <Text style={styles.claimButtonText}>Perform</Text>
                   </TouchableOpacity>
