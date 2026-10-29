@@ -372,8 +372,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    // Security: Validate rewards to prevent NaN or negative amounts from corrupting state
+    const validXp = typeof xpAmount === 'number' && Number.isFinite(xpAmount) && xpAmount > 0 ? Math.floor(xpAmount) : 0;
+    const validGems = typeof gemsAmount === 'number' && Number.isFinite(gemsAmount) && gemsAmount > 0 ? Math.floor(gemsAmount) : 0;
+    if (validXp === 0 && validGems === 0) return;
+
     setPlayer((prev) => {
-      let newXp = prev.xp + xpAmount;
+      let newXp = prev.xp + validXp;
       let newLevel = prev.level;
       let newNextXp = prev.nextLevelXp;
       const newStats = { ...prev.stats };
@@ -398,7 +403,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         level: newLevel,
         xp: newXp,
         nextLevelXp: newNextXp,
-        harmonyGems: prev.harmonyGems + gemsAmount,
+        harmonyGems: prev.harmonyGems + validGems,
         stats: newStats
       };
     });
@@ -422,7 +427,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const equipItem = (item: InventoryItem) => {
-    if (item.type === 'consumable') return;
+    // Security: Guard against null item and non-equipable slot types
+    if (!item || typeof item !== 'object' || item.type === 'consumable') return;
+    const allowedSlots = ['instrument', 'amplifier', 'microphone', 'pedal'];
+    if (!allowedSlots.includes(item.type)) return;
 
     setPlayer((prev) => {
       const slot = item.type as keyof typeof prev.equipped;
@@ -445,6 +453,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const useConsumable = (item: InventoryItem) => {
+    // Security: Validate consumable item payload before updating player stats
+    if (!item || typeof item.id !== 'string') return;
+
     setPlayer((prev) => {
       const invIndex = prev.inventory.findIndex((i) => i.id === item.id);
       if (invIndex === -1) return prev;
@@ -452,8 +463,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const newInv = [...prev.inventory];
       newInv.splice(invIndex, 1);
 
-      const restoreHp = item.statBonus.hp || 0;
-      const restoreEnergy = item.statBonus.energy || 0;
+      const restoreHp = typeof item.statBonus?.hp === 'number' && Number.isFinite(item.statBonus.hp) ? Math.max(0, item.statBonus.hp) : 0;
+      const restoreEnergy = typeof item.statBonus?.energy === 'number' && Number.isFinite(item.statBonus.energy) ? Math.max(0, item.statBonus.energy) : 0;
 
       return {
         ...prev,
@@ -498,7 +509,15 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateSettings = (newSettings: Partial<GameSettings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+    // Security: Validate settings payload and bound volume level between 0 and 1
+    if (!newSettings || typeof newSettings !== 'object') return;
+    setSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      if (typeof updated.volume === 'number' && Number.isFinite(updated.volume)) {
+        updated.volume = Math.max(0, Math.min(1, updated.volume));
+      }
+      return updated;
+    });
   };
 
   const resetProgress = () => {
