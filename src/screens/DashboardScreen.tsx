@@ -55,6 +55,9 @@ export const DashboardScreen = () => {
               <TouchableOpacity
                 style={styles.classBadge}
                 onPress={() => setClassModalVisible(true)}
+                accessibilityRole="button"
+                accessibilityLabel={`Hero class ${player.characterClass}, Level ${player.level}`}
+                accessibilityHint="Opens specialization menu to change character class"
               >
                 <Text style={styles.classText}>Level {player.level} • {player.characterClass}</Text>
                 <Ionicons name="chevron-down" size={14} color="#00F0FF" />
@@ -97,7 +100,13 @@ export const DashboardScreen = () => {
           </View>
 
           {/* Energy Restore Action */}
-          <TouchableOpacity style={styles.restButton} onPress={restoreEnergyAndHp}>
+          <TouchableOpacity
+            style={styles.restButton}
+            onPress={restoreEnergyAndHp}
+            accessibilityRole="button"
+            accessibilityLabel="Rest and recharge energy and health"
+            accessibilityHint="Restores hero health and energy stats to maximum"
+          >
             <Ionicons name="flash-outline" size={18} color="#12121A" />
             <Text style={styles.restButtonText}>Rest & Recharge Energy</Text>
           </TouchableOpacity>
@@ -173,6 +182,9 @@ export const DashboardScreen = () => {
                   changeClass(c.name);
                   setClassModalVisible(false);
                 }}
+                accessibilityRole="button"
+                accessibilityLabel={`${c.name} class, ${c.desc}`}
+                accessibilityState={{ selected: player.characterClass === c.name }}
               >
                 <Ionicons name={c.icon} size={24} color="#00F0FF" />
                 <View style={{ marginLeft: 12, flex: 1 }}>
@@ -181,7 +193,12 @@ export const DashboardScreen = () => {
                 </View>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={styles.closeButton} onPress={() => setClassModalVisible(false)}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setClassModalVisible(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Close class selection modal"
+            >
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
