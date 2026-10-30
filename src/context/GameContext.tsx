@@ -372,14 +372,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    // Security: Validate XP and gems inputs to prevent state corruption and infinite loops
+    const safeXp = typeof xpAmount === 'number' && Number.isFinite(xpAmount) && xpAmount > 0 ? Math.floor(xpAmount) : 0;
+    const safeGems = typeof gemsAmount === 'number' && Number.isFinite(gemsAmount) && gemsAmount > 0 ? Math.floor(gemsAmount) : 0;
+
+    if (safeXp === 0 && safeGems === 0) return;
+
     setPlayer((prev) => {
-      let newXp = prev.xp + xpAmount;
+      let newXp = prev.xp + safeXp;
       let newLevel = prev.level;
       let newNextXp = prev.nextLevelXp;
       const newStats = { ...prev.stats };
 
-      // Check level up
-      while (newXp >= newNextXp) {
+      // Check level up safely
+      while (newNextXp > 0 && newXp >= newNextXp) {
         newXp -= newNextXp;
         newLevel += 1;
         newNextXp = Math.floor(newNextXp * 1.5);
@@ -398,7 +404,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         level: newLevel,
         xp: newXp,
         nextLevelXp: newNextXp,
-        harmonyGems: prev.harmonyGems + gemsAmount,
+        harmonyGems: prev.harmonyGems + safeGems,
         stats: newStats
       };
     });
@@ -468,19 +474,23 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const completeQuest = (questId: string) => {
-    if (player.completedQuestIds.includes(questId)) return;
+    if (typeof questId !== 'string' || !questId || player.completedQuestIds.includes(questId)) return;
 
+    let questFound = false;
     let rewardXp = 0;
     let rewardGems = 0;
 
     regions.forEach((reg) => {
       reg.quests.forEach((q) => {
         if (q.id === questId) {
+          questFound = true;
           rewardXp = q.rewardXp;
           rewardGems = q.rewardGems;
         }
       });
     });
+
+    if (!questFound) return;
 
     setPlayer((prev) => ({
       ...prev,
