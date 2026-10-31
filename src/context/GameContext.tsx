@@ -372,17 +372,22 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    // Security: Validate inputs are finite non-negative numbers to prevent state corruption, DoS loops, or gem exploits
+    const safeXp = typeof xpAmount === 'number' && Number.isFinite(xpAmount) && xpAmount > 0 ? Math.floor(xpAmount) : 0;
+    const safeGems = typeof gemsAmount === 'number' && Number.isFinite(gemsAmount) && gemsAmount > 0 ? Math.floor(gemsAmount) : 0;
+    if (safeXp === 0 && safeGems === 0) return;
+
     setPlayer((prev) => {
-      let newXp = prev.xp + xpAmount;
+      let newXp = prev.xp + safeXp;
       let newLevel = prev.level;
-      let newNextXp = prev.nextLevelXp;
+      let newNextXp = prev.nextLevelXp > 0 ? prev.nextLevelXp : 100;
       const newStats = { ...prev.stats };
 
-      // Check level up
-      while (newXp >= newNextXp) {
+      // Check level up with safety guard against zero/negative threshold infinite loops
+      while (newXp >= newNextXp && newNextXp > 0) {
         newXp -= newNextXp;
         newLevel += 1;
-        newNextXp = Math.floor(newNextXp * 1.5);
+        newNextXp = Math.max(10, Math.floor(newNextXp * 1.5));
         newStats.maxHp += 20;
         newStats.hp = newStats.maxHp;
         newStats.maxEnergy += 10;
@@ -398,7 +403,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         level: newLevel,
         xp: newXp,
         nextLevelXp: newNextXp,
-        harmonyGems: prev.harmonyGems + gemsAmount,
+        harmonyGems: prev.harmonyGems + safeGems,
         stats: newStats
       };
     });
@@ -498,7 +503,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateSettings = (newSettings: Partial<GameSettings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+    // Security: Validate settings updates to reject nullish or non-object payloads
+    if (!newSettings || typeof newSettings !== 'object') return;
+    setSettings((prev) => ({
+      ...prev,
+      soundEnabled: typeof newSettings.soundEnabled === 'boolean' ? newSettings.soundEnabled : prev.soundEnabled,
+      volume: typeof newSettings.volume === 'number' && Number.isFinite(newSettings.volume)
+        ? Math.max(0, Math.min(1, newSettings.volume))
+        : prev.volume,
+      keyboardControls: newSettings.keyboardControls && typeof newSettings.keyboardControls === 'object'
+        ? { ...prev.keyboardControls, ...newSettings.keyboardControls }
+        : prev.keyboardControls,
+    }));
   };
 
   const resetProgress = () => {
