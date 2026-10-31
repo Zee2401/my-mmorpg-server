@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useGame } from '../context/GameContext';
 import { CharacterClass } from '../types/game';
+import { audioSynth } from '../utils/audioSynth';
 
 const CLASSES: { name: CharacterClass; icon: keyof typeof Ionicons.glyphMap; desc: string }[] = [
   { name: 'Bard', icon: 'musical-notes', desc: '+Harmony & Balanced Rhythms' },
@@ -28,6 +29,13 @@ export const DashboardScreen = () => {
   const xpPercent = Math.min(100, Math.floor((player.xp / player.nextLevelXp) * 100));
   const hpPercent = Math.min(100, Math.floor((player.stats.hp / player.stats.maxHp) * 100));
   const energyPercent = Math.min(100, Math.floor((player.stats.energy / player.stats.maxEnergy) * 100));
+  const isFullyRestored = player.stats.hp >= player.stats.maxHp && player.stats.energy >= player.stats.maxEnergy;
+
+  const handleRest = () => {
+    if (isFullyRestored) return;
+    restoreEnergyAndHp();
+    audioSynth.playNote('C5', 'triangle', 0.25, 0.2);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -97,9 +105,31 @@ export const DashboardScreen = () => {
           </View>
 
           {/* Energy Restore Action */}
-          <TouchableOpacity style={styles.restButton} onPress={restoreEnergyAndHp}>
-            <Ionicons name="flash-outline" size={18} color="#12121A" />
-            <Text style={styles.restButtonText}>Rest & Recharge Energy</Text>
+          <TouchableOpacity
+            style={[styles.restButton, isFullyRestored && styles.restButtonDisabled]}
+            onPress={handleRest}
+            disabled={isFullyRestored}
+            accessibilityRole="button"
+            accessibilityLabel={
+              isFullyRestored
+                ? 'Health and Energy are fully restored'
+                : 'Rest and recharge health and energy'
+            }
+            accessibilityHint={
+              isFullyRestored
+                ? 'Your stats are already at full capacity'
+                : 'Instantly restores HP and Energy to maximum'
+            }
+            accessibilityState={{ disabled: isFullyRestored }}
+          >
+            <Ionicons
+              name={isFullyRestored ? 'checkmark-circle' : 'flash-outline'}
+              size={18}
+              color={isFullyRestored ? '#8888AA' : '#12121A'}
+            />
+            <Text style={[styles.restButtonText, isFullyRestored && styles.restButtonTextDisabled]}>
+              {isFullyRestored ? 'HP & Energy at Maximum' : 'Rest & Recharge Energy'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -266,7 +296,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 8,
   },
+  restButtonDisabled: {
+    backgroundColor: '#222230',
+    borderWidth: 1,
+    borderColor: '#333348',
+  },
   restButtonText: { color: '#12121A', fontWeight: 'bold', marginLeft: 6 },
+  restButtonTextDisabled: { color: '#8888AA' },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 12, marginTop: 8 },
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 },
   statBox: {
