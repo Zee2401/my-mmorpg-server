@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   Modal,
   Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useGame } from '../context/GameContext';
 import { CharacterClass } from '../types/game';
+import { audioSynth } from '../utils/audioSynth';
 
 const CLASSES: { name: CharacterClass; icon: keyof typeof Ionicons.glyphMap; desc: string }[] = [
   { name: 'Bard', icon: 'musical-notes', desc: '+Harmony & Balanced Rhythms' },
@@ -24,6 +26,19 @@ const CLASSES: { name: CharacterClass; icon: keyof typeof Ionicons.glyphMap; des
 export const DashboardScreen = () => {
   const { player, restoreEnergyAndHp, changeClass } = useGame();
   const [classModalVisible, setClassModalVisible] = useState(false);
+
+  const isVitalityFull =
+    player.stats.hp >= player.stats.maxHp && player.stats.energy >= player.stats.maxEnergy;
+
+  const handleRest = () => {
+    if (isVitalityFull) return;
+    restoreEnergyAndHp();
+    audioSynth.playNote('G5', 'sine', 0.35, 0.2);
+    Alert.alert(
+      'Vitality Restored!',
+      'Your hero rested and recharged HP and Energy to 100%!'
+    );
+  };
 
   const xpPercent = Math.min(100, Math.floor((player.xp / player.nextLevelXp) * 100));
   const hpPercent = Math.min(100, Math.floor((player.stats.hp / player.stats.maxHp) * 100));
@@ -55,6 +70,9 @@ export const DashboardScreen = () => {
               <TouchableOpacity
                 style={styles.classBadge}
                 onPress={() => setClassModalVisible(true)}
+                accessibilityRole="button"
+                accessibilityLabel={`Character class: ${player.characterClass}, level ${player.level}`}
+                accessibilityHint="Opens class specialization selector"
               >
                 <Text style={styles.classText}>Level {player.level} • {player.characterClass}</Text>
                 <Ionicons name="chevron-down" size={14} color="#00F0FF" />
@@ -97,9 +115,31 @@ export const DashboardScreen = () => {
           </View>
 
           {/* Energy Restore Action */}
-          <TouchableOpacity style={styles.restButton} onPress={restoreEnergyAndHp}>
-            <Ionicons name="flash-outline" size={18} color="#12121A" />
-            <Text style={styles.restButtonText}>Rest & Recharge Energy</Text>
+          <TouchableOpacity
+            style={[styles.restButton, isVitalityFull && styles.restButtonDisabled]}
+            onPress={handleRest}
+            disabled={isVitalityFull}
+            accessibilityRole="button"
+            accessibilityLabel={
+              isVitalityFull
+                ? 'Vitality fully restored. HP and Energy are at maximum'
+                : 'Rest and recharge HP and Energy to maximum'
+            }
+            accessibilityHint={
+              isVitalityFull
+                ? 'No rest needed; health and energy are completely full'
+                : 'Restores all hero HP and Energy'
+            }
+            accessibilityState={{ disabled: isVitalityFull }}
+          >
+            <Ionicons
+              name={isVitalityFull ? 'checkmark-circle' : 'flash-outline'}
+              size={18}
+              color={isVitalityFull ? '#39FF14' : '#12121A'}
+            />
+            <Text style={[styles.restButtonText, isVitalityFull && styles.restButtonTextDisabled]}>
+              {isVitalityFull ? 'Vitality Fully Restored' : 'Rest & Recharge Energy'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -266,7 +306,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 8,
   },
+  restButtonDisabled: {
+    backgroundColor: '#1E2620',
+    borderWidth: 1,
+    borderColor: '#39FF1433',
+  },
   restButtonText: { color: '#12121A', fontWeight: 'bold', marginLeft: 6 },
+  restButtonTextDisabled: { color: '#39FF14', fontWeight: '600' },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 12, marginTop: 8 },
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 },
   statBox: {
