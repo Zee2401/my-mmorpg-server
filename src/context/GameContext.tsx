@@ -372,14 +372,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    // Security: Validate inputs to prevent negative or non-finite values from corrupting game state or causing infinite loops
+    if (typeof xpAmount !== 'number' || !Number.isFinite(xpAmount) || xpAmount < 0) return;
+    if (typeof gemsAmount !== 'number' || !Number.isFinite(gemsAmount) || gemsAmount < 0) return;
+
     setPlayer((prev) => {
-      let newXp = prev.xp + xpAmount;
+      let newXp = prev.xp + Math.floor(xpAmount);
       let newLevel = prev.level;
       let newNextXp = prev.nextLevelXp;
       const newStats = { ...prev.stats };
 
-      // Check level up
-      while (newXp >= newNextXp) {
+      // Check level up safely
+      while (newNextXp > 0 && newXp >= newNextXp) {
         newXp -= newNextXp;
         newLevel += 1;
         newNextXp = Math.floor(newNextXp * 1.5);
@@ -398,7 +402,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         level: newLevel,
         xp: newXp,
         nextLevelXp: newNextXp,
-        harmonyGems: prev.harmonyGems + gemsAmount,
+        harmonyGems: prev.harmonyGems + Math.floor(gemsAmount),
         stats: newStats
       };
     });
@@ -468,26 +472,26 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const completeQuest = (questId: string) => {
-    if (player.completedQuestIds.includes(questId)) return;
+    if (typeof questId !== 'string' || !questId || player.completedQuestIds.includes(questId)) return;
 
-    let rewardXp = 0;
-    let rewardGems = 0;
+    // Security: Find target quest and verify player level authorization before awarding rewards
+    let targetQuest: Quest | undefined;
+    for (const reg of regions) {
+      const q = reg.quests.find((item) => item.id === questId);
+      if (q) {
+        targetQuest = q;
+        break;
+      }
+    }
 
-    regions.forEach((reg) => {
-      reg.quests.forEach((q) => {
-        if (q.id === questId) {
-          rewardXp = q.rewardXp;
-          rewardGems = q.rewardGems;
-        }
-      });
-    });
+    if (!targetQuest || player.level < targetQuest.requiredLevel) return;
 
     setPlayer((prev) => ({
       ...prev,
       completedQuestIds: [...prev.completedQuestIds, questId]
     }));
 
-    gainXpAndGems(rewardXp, rewardGems);
+    gainXpAndGems(targetQuest.rewardXp, targetQuest.rewardGems);
   };
 
   const changeClass = (newClass: CharacterClass) => {
