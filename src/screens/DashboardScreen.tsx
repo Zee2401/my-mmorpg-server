@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useGame } from '../context/GameContext';
 import { CharacterClass } from '../types/game';
+import { audioSynth } from '../utils/audioSynth';
 
 const CLASSES: { name: CharacterClass; icon: keyof typeof Ionicons.glyphMap; desc: string }[] = [
   { name: 'Bard', icon: 'musical-notes', desc: '+Harmony & Balanced Rhythms' },
@@ -24,6 +25,14 @@ const CLASSES: { name: CharacterClass; icon: keyof typeof Ionicons.glyphMap; des
 export const DashboardScreen = () => {
   const { player, restoreEnergyAndHp, changeClass } = useGame();
   const [classModalVisible, setClassModalVisible] = useState(false);
+
+  const isFullyRested = player.stats.hp >= player.stats.maxHp && player.stats.energy >= player.stats.maxEnergy;
+
+  const handleRest = () => {
+    if (isFullyRested) return;
+    restoreEnergyAndHp();
+    audioSynth.playAbilitySound();
+  };
 
   const xpPercent = Math.min(100, Math.floor((player.xp / player.nextLevelXp) * 100));
   const hpPercent = Math.min(100, Math.floor((player.stats.hp / player.stats.maxHp) * 100));
@@ -55,6 +64,9 @@ export const DashboardScreen = () => {
               <TouchableOpacity
                 style={styles.classBadge}
                 onPress={() => setClassModalVisible(true)}
+                accessibilityRole="button"
+                accessibilityLabel={`Class specialization: ${player.characterClass}, Level ${player.level}`}
+                accessibilityHint="Opens dialog to choose hero class specialization"
               >
                 <Text style={styles.classText}>Level {player.level} • {player.characterClass}</Text>
                 <Ionicons name="chevron-down" size={14} color="#00F0FF" />
@@ -97,9 +109,23 @@ export const DashboardScreen = () => {
           </View>
 
           {/* Energy Restore Action */}
-          <TouchableOpacity style={styles.restButton} onPress={restoreEnergyAndHp}>
-            <Ionicons name="flash-outline" size={18} color="#12121A" />
-            <Text style={styles.restButtonText}>Rest & Recharge Energy</Text>
+          <TouchableOpacity
+            style={[styles.restButton, isFullyRested && styles.restButtonDisabled]}
+            onPress={handleRest}
+            disabled={isFullyRested}
+            accessibilityRole="button"
+            accessibilityLabel={isFullyRested ? 'Health and energy fully restored' : 'Rest and recharge energy'}
+            accessibilityHint={isFullyRested ? 'Your hero is already at full HP and energy' : 'Restores HP and energy to maximum values'}
+            accessibilityState={{ disabled: isFullyRested }}
+          >
+            <Ionicons
+              name={isFullyRested ? 'checkmark-circle-outline' : 'flash-outline'}
+              size={18}
+              color={isFullyRested ? '#8888AA' : '#12121A'}
+            />
+            <Text style={[styles.restButtonText, isFullyRested && styles.restButtonTextDisabled]}>
+              {isFullyRested ? 'HP & Energy Full' : 'Rest & Recharge Energy'}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -266,7 +292,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 8,
   },
+  restButtonDisabled: {
+    backgroundColor: '#222232',
+    borderWidth: 1,
+    borderColor: '#333346',
+  },
   restButtonText: { color: '#12121A', fontWeight: 'bold', marginLeft: 6 },
+  restButtonTextDisabled: { color: '#8888AA' },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 12, marginTop: 8 },
   statsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 },
   statBox: {
