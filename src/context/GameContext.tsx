@@ -282,26 +282,39 @@ const sanitizeNum = (val: unknown, fallback: number): number => {
   return typeof val === 'number' && Number.isFinite(val) && val >= 0 ? val : fallback;
 };
 
-// Security Helper: Validate and sanitize untrusted deserialized state from storage
-const sanitizePlayerData = (raw: unknown): PlayerProfile => {
+export const VALID_CLASSES: CharacterClass[] = ['Bard', 'Beatmaker', 'Vocalist', 'Guitarist', 'DJ'];
+
+// Security Helper: Validate and sanitize untrusted deserialized state from storage (prevents prototype pollution & injection)
+export const sanitizePlayerData = (raw: unknown): PlayerProfile => {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     return INITIAL_PLAYER;
   }
 
-  const p = raw as Partial<PlayerProfile>;
-  const stats = p.stats && typeof p.stats === 'object' ? (p.stats as Partial<PlayerProfile['stats']>) : {};
-  const equipped = p.equipped && typeof p.equipped === 'object' ? p.equipped : {};
+  const p = raw as Record<string, unknown>;
+  const stats = p.stats && typeof p.stats === 'object' && !Array.isArray(p.stats) ? (p.stats as Record<string, unknown>) : {};
+  const equipped = p.equipped && typeof p.equipped === 'object' && !Array.isArray(p.equipped) ? (p.equipped as Record<string, unknown>) : {};
+
+  const characterClass = typeof p.characterClass === 'string' && VALID_CLASSES.includes(p.characterClass as CharacterClass)
+    ? (p.characterClass as CharacterClass)
+    : INITIAL_PLAYER.characterClass;
+
+  const inventory = Array.isArray(p.inventory)
+    ? (p.inventory.filter((item): item is InventoryItem => !!item && typeof item === 'object' && typeof item.id === 'string' && typeof item.name === 'string'))
+    : INITIAL_PLAYER.inventory;
+
+  const completedQuestIds = Array.isArray(p.completedQuestIds)
+    ? p.completedQuestIds.filter((id): id is string => typeof id === 'string')
+    : INITIAL_PLAYER.completedQuestIds;
 
   return {
-    ...INITIAL_PLAYER,
-    ...p,
+    name: typeof p.name === 'string' && p.name.trim().length > 0 ? p.name.slice(0, 32) : INITIAL_PLAYER.name,
+    characterClass,
+    avatar: typeof p.avatar === 'string' ? p.avatar : INITIAL_PLAYER.avatar,
     level: sanitizeNum(p.level, INITIAL_PLAYER.level),
     xp: sanitizeNum(p.xp, INITIAL_PLAYER.xp),
     nextLevelXp: sanitizeNum(p.nextLevelXp, INITIAL_PLAYER.nextLevelXp),
     harmonyGems: sanitizeNum(p.harmonyGems, INITIAL_PLAYER.harmonyGems),
     stats: {
-      ...INITIAL_PLAYER.stats,
-      ...stats,
       hp: sanitizeNum(stats.hp, INITIAL_PLAYER.stats.hp),
       maxHp: sanitizeNum(stats.maxHp, INITIAL_PLAYER.stats.maxHp),
       energy: sanitizeNum(stats.energy, INITIAL_PLAYER.stats.energy),
@@ -312,11 +325,35 @@ const sanitizePlayerData = (raw: unknown): PlayerProfile => {
       harmony: sanitizeNum(stats.harmony, INITIAL_PLAYER.stats.harmony),
     },
     equipped: {
-      ...INITIAL_PLAYER.equipped,
-      ...equipped,
+      instrument: equipped.instrument && typeof equipped.instrument === 'object' ? (equipped.instrument as InventoryItem) : INITIAL_PLAYER.equipped.instrument,
+      amplifier: equipped.amplifier && typeof equipped.amplifier === 'object' ? (equipped.amplifier as InventoryItem) : undefined,
+      microphone: equipped.microphone && typeof equipped.microphone === 'object' ? (equipped.microphone as InventoryItem) : undefined,
+      pedal: equipped.pedal && typeof equipped.pedal === 'object' ? (equipped.pedal as InventoryItem) : undefined,
     },
-    inventory: Array.isArray(p.inventory) ? p.inventory : INITIAL_PLAYER.inventory,
-    completedQuestIds: Array.isArray(p.completedQuestIds) ? p.completedQuestIds : INITIAL_PLAYER.completedQuestIds,
+    inventory,
+    completedQuestIds,
+    band: p.band && typeof p.band === 'object' ? (p.band as PlayerProfile['band']) : INITIAL_PLAYER.band,
+  };
+};
+
+// Security Helper: Validate settings from storage to avoid prototype pollution and invalid controls
+export const sanitizeSettings = (raw: unknown): GameSettings => {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return INITIAL_SETTINGS;
+  }
+  const s = raw as Record<string, unknown>;
+  const controls = s.keyboardControls && typeof s.keyboardControls === 'object' ? (s.keyboardControls as Record<string, unknown>) : {};
+  const vol = typeof s.volume === 'number' && Number.isFinite(s.volume) ? Math.max(0, Math.min(1, s.volume)) : INITIAL_SETTINGS.volume;
+
+  return {
+    soundEnabled: typeof s.soundEnabled === 'boolean' ? s.soundEnabled : INITIAL_SETTINGS.soundEnabled,
+    volume: vol,
+    keyboardControls: {
+      lane1: typeof controls.lane1 === 'string' && controls.lane1.length === 1 ? controls.lane1.toLowerCase() : INITIAL_SETTINGS.keyboardControls.lane1,
+      lane2: typeof controls.lane2 === 'string' && controls.lane2.length === 1 ? controls.lane2.toLowerCase() : INITIAL_SETTINGS.keyboardControls.lane2,
+      lane3: typeof controls.lane3 === 'string' && controls.lane3.length === 1 ? controls.lane3.toLowerCase() : INITIAL_SETTINGS.keyboardControls.lane3,
+      lane4: typeof controls.lane4 === 'string' && controls.lane4.length === 1 ? controls.lane4.toLowerCase() : INITIAL_SETTINGS.keyboardControls.lane4,
+    },
   };
 };
 
@@ -339,7 +376,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const savedPlayer = await AsyncStorage.getItem(STORAGE_KEY_PLAYER);
       const savedSettings = await AsyncStorage.getItem(STORAGE_KEY_SETTINGS);
 
-      // Secure handling of stored JSON to prevent crashes from corrupted or untrusted local state
+      // Secure handling of stored JSON to prevent prototype pollution and crashes from corrupted local state
       if (savedPlayer) {
         try {
           setPlayer(sanitizePlayerData(JSON.parse(savedPlayer)));
@@ -349,10 +386,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       if (savedSettings) {
         try {
-          const parsedSettings = JSON.parse(savedSettings);
-          if (parsedSettings && typeof parsedSettings === 'object') {
-            setSettings((prev) => ({ ...prev, ...parsedSettings }));
-          }
+          setSettings(sanitizeSettings(JSON.parse(savedSettings)));
         } catch (err) {
           console.warn('Security Warning: Malformed settings data in storage, using initial state', err);
         }
