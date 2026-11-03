@@ -372,8 +372,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    // Security: Validate inputs are finite, non-negative numbers to prevent gem/XP manipulation or NaN/Infinite state corruptions
+    const safeXp = typeof xpAmount === 'number' && Number.isFinite(xpAmount) && xpAmount > 0 ? xpAmount : 0;
+    const safeGems = typeof gemsAmount === 'number' && Number.isFinite(gemsAmount) && gemsAmount > 0 ? gemsAmount : 0;
+
+    if (safeXp === 0 && safeGems === 0) return;
+
     setPlayer((prev) => {
-      let newXp = prev.xp + xpAmount;
+      let newXp = prev.xp + safeXp;
       let newLevel = prev.level;
       let newNextXp = prev.nextLevelXp;
       const newStats = { ...prev.stats };
@@ -398,7 +404,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         level: newLevel,
         xp: newXp,
         nextLevelXp: newNextXp,
-        harmonyGems: prev.harmonyGems + gemsAmount,
+        harmonyGems: prev.harmonyGems + safeGems,
         stats: newStats
       };
     });
