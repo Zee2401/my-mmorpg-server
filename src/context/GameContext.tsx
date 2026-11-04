@@ -278,6 +278,8 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
+export const VALID_CLASSES: readonly CharacterClass[] = ['Bard', 'Beatmaker', 'Vocalist', 'Guitarist', 'DJ'] as const;
+
 const sanitizeNum = (val: unknown, fallback: number): number => {
   return typeof val === 'number' && Number.isFinite(val) && val >= 0 ? val : fallback;
 };
@@ -291,10 +293,14 @@ const sanitizePlayerData = (raw: unknown): PlayerProfile => {
   const p = raw as Partial<PlayerProfile>;
   const stats = p.stats && typeof p.stats === 'object' ? (p.stats as Partial<PlayerProfile['stats']>) : {};
   const equipped = p.equipped && typeof p.equipped === 'object' ? p.equipped : {};
+  const characterClass = (p.characterClass && VALID_CLASSES.includes(p.characterClass))
+    ? p.characterClass
+    : INITIAL_PLAYER.characterClass;
 
   return {
     ...INITIAL_PLAYER,
     ...p,
+    characterClass,
     level: sanitizeNum(p.level, INITIAL_PLAYER.level),
     xp: sanitizeNum(p.xp, INITIAL_PLAYER.xp),
     nextLevelXp: sanitizeNum(p.nextLevelXp, INITIAL_PLAYER.nextLevelXp),
@@ -372,6 +378,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    // Security: Validate inputs are finite, non-negative numbers to prevent state corruption / exploits
+    if (typeof xpAmount !== 'number' || !Number.isFinite(xpAmount) || xpAmount < 0) return;
+    if (typeof gemsAmount !== 'number' || !Number.isFinite(gemsAmount) || gemsAmount < 0) return;
+
     setPlayer((prev) => {
       let newXp = prev.xp + xpAmount;
       let newLevel = prev.level;
@@ -468,29 +478,33 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const completeQuest = (questId: string) => {
+    // Security: Validate questId is a non-empty string and belongs to an active region quest
+    if (typeof questId !== 'string' || !questId.trim()) return;
     if (player.completedQuestIds.includes(questId)) return;
 
-    let rewardXp = 0;
-    let rewardGems = 0;
+    let matchingQuest: Quest | null = null;
+    for (const reg of regions) {
+      const found = reg.quests.find((q) => q.id === questId);
+      if (found) {
+        matchingQuest = found;
+        break;
+      }
+    }
 
-    regions.forEach((reg) => {
-      reg.quests.forEach((q) => {
-        if (q.id === questId) {
-          rewardXp = q.rewardXp;
-          rewardGems = q.rewardGems;
-        }
-      });
-    });
+    if (!matchingQuest) return;
 
     setPlayer((prev) => ({
       ...prev,
       completedQuestIds: [...prev.completedQuestIds, questId]
     }));
 
-    gainXpAndGems(rewardXp, rewardGems);
+    gainXpAndGems(matchingQuest.rewardXp, matchingQuest.rewardGems);
   };
 
   const changeClass = (newClass: CharacterClass) => {
+    // Security: Validate characterClass against whitelist to prevent invalid state injection
+    if (!VALID_CLASSES.includes(newClass)) return;
+
     setPlayer((prev) => ({
       ...prev,
       characterClass: newClass
