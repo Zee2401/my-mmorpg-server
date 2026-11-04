@@ -33,6 +33,16 @@ export const StudioScreen = () => {
   const { gainXpAndGems } = useGame();
   const [beatsPlayed, setBeatsPlayed] = useState(0);
   const [activePad, setActivePad] = useState<string | null>(null);
+  const [bonusEarned, setBonusEarned] = useState(false);
+
+  const triggerBeatFeedback = (newCount: number) => {
+    if (newCount % 20 === 0) {
+      gainXpAndGems(25, 10);
+      audioSynth.playHitSound(true);
+      setBonusEarned(true);
+      setTimeout(() => setBonusEarned(false), 2000);
+    }
+  };
 
   const handleDrumPress = (type: 'kick' | 'snare' | 'hihat' | 'synth') => {
     audioSynth.playDrum(type);
@@ -41,10 +51,7 @@ export const StudioScreen = () => {
 
     const newCount = beatsPlayed + 1;
     setBeatsPlayed(newCount);
-
-    if (newCount % 20 === 0) {
-      gainXpAndGems(25, 10);
-    }
+    triggerBeatFeedback(newCount);
   };
 
   const handleNotePress = (note: string) => {
@@ -54,11 +61,11 @@ export const StudioScreen = () => {
 
     const newCount = beatsPlayed + 1;
     setBeatsPlayed(newCount);
-
-    if (newCount % 20 === 0) {
-      gainXpAndGems(25, 10);
-    }
+    triggerBeatFeedback(newCount);
   };
+
+  const milestoneProgress = beatsPlayed % 20;
+  const progressPercent = (milestoneProgress / 20) * 100;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -71,15 +78,32 @@ export const StudioScreen = () => {
 
         {/* Practice Stats Header */}
         <View style={styles.practiceCard}>
-          <Ionicons name="disc" size={32} color="#FFD700" />
+          <Ionicons name="disc" size={32} color={bonusEarned ? '#39FF14' : '#FFD700'} />
           <View style={{ marginLeft: 12, flex: 1 }}>
             <Text style={styles.practiceTitle}>Practice Jam Session</Text>
             <Text style={styles.practiceSub}>
               Beats Triggered: <Text style={{ color: '#00F0FF', fontWeight: 'bold' }}>{beatsPlayed}</Text>
+              <Text style={{ color: '#8888AA' }}> ({milestoneProgress}/20 to bonus)</Text>
             </Text>
+            {/* Accessible Milestone Progress Bar */}
+            <View
+              style={styles.progressBarBackground}
+              accessibilityRole="progressbar"
+              accessibilityValue={{ min: 0, max: 20, now: milestoneProgress }}
+              accessibilityLabel={`${milestoneProgress} of 20 beats toward bonus XP`}
+            >
+              <View
+                style={[
+                  styles.progressBarFill,
+                  { width: `${progressPercent}%`, backgroundColor: bonusEarned ? '#39FF14' : '#00F0FF' },
+                ]}
+              />
+            </View>
           </View>
-          <View style={styles.xpBonusBadge}>
-            <Text style={styles.xpBonusText}>+25 XP / 20 Beats</Text>
+          <View style={[styles.xpBonusBadge, bonusEarned && styles.xpBonusBadgeActive]}>
+            <Text style={[styles.xpBonusText, bonusEarned && styles.xpBonusTextActive]}>
+              {bonusEarned ? '🎉 +25 XP Bonus!' : '+25 XP / 20 Beats'}
+            </Text>
           </View>
         </View>
 
@@ -156,8 +180,19 @@ const styles = StyleSheet.create({
   },
   practiceTitle: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 15 },
   practiceSub: { color: '#8888AA', fontSize: 12, marginTop: 2 },
-  xpBonusBadge: { backgroundColor: '#FFD70015', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+  progressBarBackground: {
+    height: 6,
+    backgroundColor: '#0A0A12',
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginTop: 6,
+    marginRight: 6,
+  },
+  progressBarFill: { height: '100%', borderRadius: 3 },
+  xpBonusBadge: { backgroundColor: '#FFD70015', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: 'transparent' },
+  xpBonusBadgeActive: { backgroundColor: '#39FF1422', borderColor: '#39FF14' },
   xpBonusText: { color: '#FFD700', fontWeight: 'bold', fontSize: 11 },
+  xpBonusTextActive: { color: '#39FF14' },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 12, marginTop: 8 },
   drumGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 },
   drumPad: {
