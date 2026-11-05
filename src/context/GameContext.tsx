@@ -372,6 +372,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    // Security: Validate amounts are finite, non-negative numbers to prevent state corruption or level-up loop DoS
+    if (typeof xpAmount !== 'number' || !Number.isFinite(xpAmount) || xpAmount < 0) return;
+    if (typeof gemsAmount !== 'number' || !Number.isFinite(gemsAmount) || gemsAmount < 0) return;
+
     setPlayer((prev) => {
       let newXp = prev.xp + xpAmount;
       let newLevel = prev.level;
@@ -468,26 +472,28 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const completeQuest = (questId: string) => {
+    // Security: Validate questId input and prevent duplicate completions
+    if (typeof questId !== 'string' || !questId.trim()) return;
     if (player.completedQuestIds.includes(questId)) return;
 
-    let rewardXp = 0;
-    let rewardGems = 0;
+    let targetQuest: Quest | undefined;
+    for (const reg of regions) {
+      const found = reg.quests.find((q) => q.id === questId);
+      if (found) {
+        targetQuest = found;
+        break;
+      }
+    }
 
-    regions.forEach((reg) => {
-      reg.quests.forEach((q) => {
-        if (q.id === questId) {
-          rewardXp = q.rewardXp;
-          rewardGems = q.rewardGems;
-        }
-      });
-    });
+    // Security: Enforce quest authorization (must exist and player must meet required level)
+    if (!targetQuest || player.level < targetQuest.requiredLevel) return;
 
     setPlayer((prev) => ({
       ...prev,
       completedQuestIds: [...prev.completedQuestIds, questId]
     }));
 
-    gainXpAndGems(rewardXp, rewardGems);
+    gainXpAndGems(targetQuest.rewardXp, targetQuest.rewardGems);
   };
 
   const changeClass = (newClass: CharacterClass) => {
