@@ -1,6 +1,7 @@
 {
-  "name": "temp_expo_app",
+  "name": "music-morpg-app",
   "version": "1.0.0",
+  "description": "Cross-platform Music MMORPG game built with React Native and Expo",
   "main": "index.js",
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -26,10 +27,24 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "expo lint",
+    "build:web": "expo export --platform web",
+    "build:android": "eas build --platform android",
+    "build:ios": "eas build --platform ios",
+    "build:all": "eas build --platform all"
   },
   "private": true,
   "devDependencies": {
-    "@types/lodash": "^4.17.26"
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^14.1.0",
+    "@types/jest": "^30.0.0",
+    "@types/lodash": "^4.17.26",
+    "jest": "^30.5.2",
+    "ts-jest": "^29.4.15"
   }
 }

@@ -1,6 +1,6 @@
 // Cross-platform Audio Synthesizer utilizing Web Audio API / Audio Context
 
-class AudioSynthesizer {
+export class AudioSynthesizer {
   private audioCtx: AudioContext | null = null;
 
   private getAudioContext(): AudioContext | null {

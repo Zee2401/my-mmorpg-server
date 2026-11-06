@@ -39,3 +39,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Jest
+/coverage
+/.jest
+jest-preset.js
+jest.setup.js
