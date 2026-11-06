@@ -1,0 +1,11 @@
+[project]
+name = "mmorpg-workflows-worker"
+version = "0.1.0"
+description = "Starter Mistral Workflows project for my-mmorpg-server"
+requires-python = ">=3.12"
+dependencies = [
+    "mistralai-workflows[mistralai]>=3.10",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

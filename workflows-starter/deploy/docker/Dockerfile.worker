@@ -1,0 +1,16 @@
+# Managed deployment image for the Workflows starter.
+# Build context: workflows-starter/
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install the Workflows SDK (>=3.10 required for service-account tokens).
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir "mistralai-workflows[mistralai]>=3.10"
+
+# Copy the worker package and put it on the import path.
+COPY apps/worker/src /app/src
+ENV PYTHONPATH=/app/src
+
+# The image must start the worker itself.
+CMD ["python", "-m", "worker.entrypoints.worker"]
