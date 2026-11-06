@@ -278,6 +278,13 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
+const VALID_CHARACTER_CLASSES: readonly CharacterClass[] = [
+  'Bard', 'Beatmaker', 'Vocalist', 'Guitarist', 'DJ'
+];
+
+const isValidCharacterClass = (cls: unknown): cls is CharacterClass =>
+  typeof cls === 'string' && VALID_CHARACTER_CLASSES.includes(cls as CharacterClass);
+
 const sanitizeNum = (val: unknown, fallback: number): number => {
   return typeof val === 'number' && Number.isFinite(val) && val >= 0 ? val : fallback;
 };
@@ -295,6 +302,7 @@ const sanitizePlayerData = (raw: unknown): PlayerProfile => {
   return {
     ...INITIAL_PLAYER,
     ...p,
+    characterClass: isValidCharacterClass(p.characterClass) ? p.characterClass : INITIAL_PLAYER.characterClass,
     level: sanitizeNum(p.level, INITIAL_PLAYER.level),
     xp: sanitizeNum(p.xp, INITIAL_PLAYER.xp),
     nextLevelXp: sanitizeNum(p.nextLevelXp, INITIAL_PLAYER.nextLevelXp),
@@ -372,6 +380,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const gainXpAndGems = (xpAmount: number, gemsAmount: number) => {
+    // Security: Validate inputs are finite non-negative numbers to prevent progression exploits
+    if (
+      typeof xpAmount !== 'number' || !Number.isFinite(xpAmount) || xpAmount < 0 ||
+      typeof gemsAmount !== 'number' || !Number.isFinite(gemsAmount) || gemsAmount < 0
+    ) {
+      return;
+    }
+
     setPlayer((prev) => {
       let newXp = prev.xp + xpAmount;
       let newLevel = prev.level;
@@ -468,29 +484,32 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const completeQuest = (questId: string) => {
+    if (typeof questId !== 'string' || !questId.trim()) return;
     if (player.completedQuestIds.includes(questId)) return;
 
-    let rewardXp = 0;
-    let rewardGems = 0;
+    let targetQuest: Quest | undefined;
+    for (const reg of regions) {
+      const found = reg.quests.find((q) => q.id === questId);
+      if (found) {
+        targetQuest = found;
+        break;
+      }
+    }
 
-    regions.forEach((reg) => {
-      reg.quests.forEach((q) => {
-        if (q.id === questId) {
-          rewardXp = q.rewardXp;
-          rewardGems = q.rewardGems;
-        }
-      });
-    });
+    // Security: Reject completion and rewards if quest ID is nonexistent in active regions
+    if (!targetQuest) return;
 
     setPlayer((prev) => ({
       ...prev,
       completedQuestIds: [...prev.completedQuestIds, questId]
     }));
 
-    gainXpAndGems(rewardXp, rewardGems);
+    gainXpAndGems(targetQuest.rewardXp, targetQuest.rewardGems);
   };
 
   const changeClass = (newClass: CharacterClass) => {
+    // Security: Validate character class against allowlist before mutating state
+    if (!isValidCharacterClass(newClass)) return;
     setPlayer((prev) => ({
       ...prev,
       characterClass: newClass
