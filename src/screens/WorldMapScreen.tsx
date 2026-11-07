@@ -14,6 +14,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useGame } from '../context/GameContext';
 import { Region, Quest, Boss } from '../types/game';
 import { RootTabParamList } from '../navigation/AppNavigator';
+import { audioSynth } from '../utils/audioSynth';
 
 type NavigationProp = BottomTabNavigationProp<RootTabParamList, 'Explore'>;
 
@@ -21,6 +22,15 @@ export const WorldMapScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { player, regions, setActiveBoss, completeQuest } = useGame();
   const [selectedRegion, setSelectedRegion] = useState<Region>(regions[0]);
+
+  const handleCompleteQuest = (quest: Quest) => {
+    completeQuest(quest.id);
+    audioSynth.playHitSound(true);
+    Alert.alert(
+      'Quest Completed!',
+      `You performed "${quest.title}" and earned +${quest.rewardXp} XP and +${quest.rewardGems} Harmony Gems!`
+    );
+  };
 
   const handleStartBossDuel = (boss: Boss) => {
     if (player.level < selectedRegion.minLevel) {
@@ -52,6 +62,10 @@ export const WorldMapScreen = () => {
             return (
               <TouchableOpacity
                 key={reg.id}
+                accessibilityRole="button"
+                accessibilityLabel={`${reg.name}, ${isLocked ? `Locked, Requires Level ${reg.minLevel}` : 'Unlocked'}`}
+                accessibilityHint={isLocked ? 'Level requirement not yet met' : 'Selects this realm to view its boss and quests'}
+                accessibilityState={{ selected: isSelected, disabled: isLocked }}
                 style={[
                   styles.regionCard,
                   isSelected && styles.selectedRegionCard,
@@ -103,6 +117,9 @@ export const WorldMapScreen = () => {
             <TouchableOpacity
               style={styles.duelButton}
               onPress={() => handleStartBossDuel(selectedRegion.boss)}
+              accessibilityRole="button"
+              accessibilityLabel={`Duel ${selectedRegion.boss.name} in Rhythm Arena`}
+              accessibilityHint="Starts rhythm battle duel against this realm boss"
             >
               <Ionicons name="flame" size={18} color="#FFFFFF" />
               <Text style={styles.duelButtonText}>DUEL BOSS IN RHYTHM ARENA</Text>
@@ -126,14 +143,21 @@ export const WorldMapScreen = () => {
                 </View>
 
                 {isDone ? (
-                  <View style={styles.completedBadge}>
+                  <View
+                    style={styles.completedBadge}
+                    accessibilityRole="text"
+                    accessibilityLabel={`Quest ${quest.title} completed`}
+                  >
                     <Ionicons name="checkmark-circle" size={20} color="#39FF14" />
                     <Text style={styles.completedText}>Done</Text>
                   </View>
                 ) : (
                   <TouchableOpacity
                     style={styles.claimButton}
-                    onPress={() => completeQuest(quest.id)}
+                    onPress={() => handleCompleteQuest(quest)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Perform quest: ${quest.title}`}
+                    accessibilityHint={`Completes the quest and awards ${quest.rewardXp} XP and ${quest.rewardGems} Gems`}
                   >
                     <Text style={styles.claimButtonText}>Perform</Text>
                   </TouchableOpacity>
