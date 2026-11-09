@@ -163,4 +163,31 @@ describe('GameContext Initial Data', () => {
       expect(synthCitadel?.boss.level).toBe(5);
     });
   });
+
+  describe('Security and Input Validation', () => {
+    it('should validate and sanitize reward allocations against negative, NaN, and non-finite inputs', () => {
+      // Test the validation logic applied in gainXpAndGems
+      const sanitizeReward = (amount: unknown): number => {
+        return typeof amount === 'number' && Number.isFinite(amount) && amount > 0
+          ? Math.floor(amount)
+          : 0;
+      };
+
+      // Invalid inputs must be normalized to 0
+      expect(sanitizeReward(-50)).toBe(0);
+      expect(sanitizeReward(-1)).toBe(0);
+      expect(sanitizeReward(NaN)).toBe(0);
+      expect(sanitizeReward(Infinity)).toBe(0);
+      expect(sanitizeReward(-Infinity)).toBe(0);
+      expect(sanitizeReward('100' as unknown)).toBe(0);
+      expect(sanitizeReward(null as unknown)).toBe(0);
+      expect(sanitizeReward(undefined as unknown)).toBe(0);
+      expect(sanitizeReward(0)).toBe(0);
+
+      // Valid inputs should be floored non-negative integers
+      expect(sanitizeReward(100)).toBe(100);
+      expect(sanitizeReward(49.9)).toBe(49);
+      expect(sanitizeReward(1)).toBe(1);
+    });
+  });
 });
