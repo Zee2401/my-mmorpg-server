@@ -6,12 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
-  Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useGame } from '../context/GameContext';
 import { CharacterClass } from '../types/game';
+import { audioSynth } from '../utils/audioSynth';
 
 const CLASSES: { name: CharacterClass; icon: keyof typeof Ionicons.glyphMap; desc: string }[] = [
   { name: 'Bard', icon: 'musical-notes', desc: '+Harmony & Balanced Rhythms' },
@@ -28,6 +29,12 @@ export const DashboardScreen = () => {
   const xpPercent = Math.min(100, Math.floor((player.xp / player.nextLevelXp) * 100));
   const hpPercent = Math.min(100, Math.floor((player.stats.hp / player.stats.maxHp) * 100));
   const energyPercent = Math.min(100, Math.floor((player.stats.energy / player.stats.maxEnergy) * 100));
+
+  const handleRest = () => {
+    restoreEnergyAndHp();
+    audioSynth.playHitSound(true);
+    Alert.alert('Fully Rested!', 'Your HP and Energy have been restored to maximum.');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,7 +61,11 @@ export const DashboardScreen = () => {
               <Text style={styles.heroName}>{player.name}</Text>
               <TouchableOpacity
                 style={styles.classBadge}
+                activeOpacity={0.7}
                 onPress={() => setClassModalVisible(true)}
+                accessibilityRole="button"
+                accessibilityLabel={`Character class: ${player.characterClass}, Level ${player.level}`}
+                accessibilityHint="Opens class specialization selector"
               >
                 <Text style={styles.classText}>Level {player.level} • {player.characterClass}</Text>
                 <Ionicons name="chevron-down" size={14} color="#00F0FF" />
@@ -97,7 +108,14 @@ export const DashboardScreen = () => {
           </View>
 
           {/* Energy Restore Action */}
-          <TouchableOpacity style={styles.restButton} onPress={restoreEnergyAndHp}>
+          <TouchableOpacity
+            style={styles.restButton}
+            activeOpacity={0.7}
+            onPress={handleRest}
+            accessibilityRole="button"
+            accessibilityLabel="Rest and recharge energy"
+            accessibilityHint="Restores HP and Energy to maximum"
+          >
             <Ionicons name="flash-outline" size={18} color="#12121A" />
             <Text style={styles.restButtonText}>Rest & Recharge Energy</Text>
           </TouchableOpacity>
@@ -165,6 +183,7 @@ export const DashboardScreen = () => {
             {CLASSES.map((c) => (
               <TouchableOpacity
                 key={c.name}
+                activeOpacity={0.7}
                 style={[
                   styles.classOption,
                   player.characterClass === c.name && styles.activeClassOption,
@@ -173,6 +192,9 @@ export const DashboardScreen = () => {
                   changeClass(c.name);
                   setClassModalVisible(false);
                 }}
+                accessibilityRole="button"
+                accessibilityLabel={`Choose ${c.name} class`}
+                accessibilityHint={c.desc}
               >
                 <Ionicons name={c.icon} size={24} color="#00F0FF" />
                 <View style={{ marginLeft: 12, flex: 1 }}>
@@ -181,7 +203,13 @@ export const DashboardScreen = () => {
                 </View>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={styles.closeButton} onPress={() => setClassModalVisible(false)}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              activeOpacity={0.7}
+              onPress={() => setClassModalVisible(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Close class selection modal"
+            >
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
